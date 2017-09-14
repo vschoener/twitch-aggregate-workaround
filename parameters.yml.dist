@@ -1,0 +1,15 @@
+twitch:
+    clientId: "Your client ID from Twitch app"
+    clientSecret: "Your client secret from Twitch app"
+    redirectURL: "Your redirect URL from twitch APP (used for authorization OAUTH2)"
+    request:
+        url: https://api.twitch.tv/kraken
+        headers:
+            Accept: "application/vnd.twitchtv.v5+json"
+
+database:
+    user: "user"
+    password: "password"
+    url: "url"
+    port: 3306
+    name: "Database name"
