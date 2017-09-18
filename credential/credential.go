@@ -3,8 +3,9 @@ package credential
 import (
 	"io/ioutil"
 	"log"
-	"twitch/core"
-	"twitch/storage"
+
+	"github.com/wonderstream/twitch/core"
+	"github.com/wonderstream/twitch/storage"
 
 	"gopkg.in/yaml.v2"
 )

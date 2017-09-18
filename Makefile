@@ -1,16 +1,16 @@
 all: build exec
 
-exec: build
-	./twitch
-
-run:
-	go run
-
 build:
-	go build
+	go install ./...
 
 clean:
 	go clean
+
+exec_webserver:
+	$(GOPATH)/bin/webserver
+
+exec_aggregation:
+	$(GOPATH)/bin/aggregation
 
 install:
 	go get gopkg.in/yaml.v2

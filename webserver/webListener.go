@@ -3,8 +3,9 @@ package webserver
 import (
 	"log"
 	"net/http"
-	"twitch/core"
-	"twitch/storage"
+
+	"github.com/wonderstream/twitch/core"
+	"github.com/wonderstream/twitch/storage"
 )
 
 // Server is use to listen as a webserver
@@ -30,8 +31,8 @@ func (s Server) getAddress() (address string) {
 func (s Server) Start(db *storage.Database, oauth2 *core.OAuth2) {
 	// Add require object
 	s.router.db = db
-    s.router.oauth2 = oauth2
-    
+	s.router.oauth2 = oauth2
+
 	s.router.Load()
 	log.Print("Running web server on " + s.getAddress())
 	log.Fatal(http.ListenAndServe(s.getAddress(), nil))

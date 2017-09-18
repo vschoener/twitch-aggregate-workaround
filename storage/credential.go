@@ -4,7 +4,8 @@ import (
 	"database/sql"
 	"log"
 	"time"
-	"twitch/core"
+
+	"github.com/wonderstream/twitch/core"
 )
 
 const (

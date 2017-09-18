@@ -3,8 +3,9 @@ package webserver
 import (
 	"log"
 	"net/http"
-	"twitch/core"
-	"twitch/storage"
+
+	"github.com/wonderstream/twitch/core"
+	"github.com/wonderstream/twitch/storage"
 )
 
 // Router used to bind any route to a method
@@ -19,7 +20,6 @@ func (r Router) Load() {
 	http.HandleFunc("/", r.home)
 	http.HandleFunc("/connectToTwitch", r.connectToTwitch)
 	http.HandleFunc("/responseOAuthTwitch", r.responseOAuthTwitch)
-	http.HandleFunc("/getChannelInfo", r.getChannelInfo)
 	http.Handle("/static/", http.FileServer(http.Dir("public")))
 }
 
@@ -41,11 +41,6 @@ func (r Router) responseOAuthTwitch(w http.ResponseWriter, req *http.Request) {
 	channelSummary := channel.RequestSummary()
 
 	r.db.RecordToken(channelSummary, token)
-}
-
-// getChannelInfo
-func (r Router) getChannelInfo(w http.ResponseWriter, req *http.Request) {
-
 }
 
 // connectToTwitch method to display page with connect button

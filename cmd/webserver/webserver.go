@@ -1,10 +1,10 @@
 package main
 
 import (
-	"twitch/core"
-	"twitch/credential"
-	"twitch/storage"
-	"twitch/webserver"
+	"github.com/wonderstream/twitch/core"
+	"github.com/wonderstream/twitch/credential"
+	"github.com/wonderstream/twitch/storage"
+	"github.com/wonderstream/twitch/webserver"
 )
 
 func main() {
