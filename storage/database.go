@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"twitch/core"
 
 	// Only used to query database
 	_ "github.com/go-sql-driver/mysql"
@@ -33,7 +32,7 @@ func NewDatabase() *Database {
 func (s *Database) Connect(dbSettings *DatabaseSettings) {
 	db, err := sql.Open(
 		"mysql",
-		fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
+		fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
 			dbSettings.User,
 			dbSettings.Password,
 			dbSettings.URL,
@@ -52,18 +51,4 @@ func (s *Database) Connect(dbSettings *DatabaseSettings) {
 // IsConnected return current status
 func (s *Database) IsConnected() bool {
 	return s.DB != nil
-}
-
-// RecordToken used to save token information inside the database
-func (s *Database) RecordToken(cs core.ChannelSummary, token core.TokenResponse) {
-	stmt, err := s.DB.Prepare("INSERT INTO credential(channelName, access_token, refresh_token, scope, expires_in) VALUES(?, ?, ?, ?, ?)")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer stmt.Close()
-	_, err = stmt.Exec(cs.Name, token.AccessToken, token.RefreshToken, token.Scope, token.ExpiresIn)
-
-	if err != nil {
-		log.Fatal(err)
-	}
 }
