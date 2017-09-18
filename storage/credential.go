@@ -29,7 +29,7 @@ func (c Credential) IsSet() bool {
 func (s *Database) insertCredential(cs core.ChannelSummary, token core.TokenResponse) {
 	stmt, err := s.DB.Prepare(`
 		INSERT INTO ` + credentialTable + `
-		(channelName, access_token, refresh_token, scope, expires_in)
+		(channel_name, access_token, refresh_token, scope, expires_in)
 		VALUES(?, ?, ?, ?, ?)
 	`)
 	if err != nil {
@@ -58,7 +58,7 @@ func (s *Database) updateCredential(cs core.ChannelSummary, token core.TokenResp
 			scope=?,
 			expires_in=?,
 			date_updated=NOW()
-		WHERE channelName=?
+		WHERE channel_name=?
 	`)
 
 	if err != nil {
@@ -100,14 +100,14 @@ func (s *Database) GetToken(channelName string) Credential {
 	err := s.DB.QueryRow(`
 		SELECT
 			id,
-			channelName,
+			channel_name,
 			access_token,
 			refresh_token,
 			scope,
 			expires_in,
 			date_updated
 		FROM `+credentialTable+`
-		WHERE channelName = ?
+		WHERE channel_name = ?
 	`, channelName).Scan(
 		&credential.ID,
 		&credential.ChannelName,
@@ -122,4 +122,49 @@ func (s *Database) GetToken(channelName string) Credential {
 	}
 
 	return credential
+}
+
+// GetCredentials return a credentials list
+func (s *Database) GetCredentials() []Credential {
+	rows, err := s.DB.Query(`
+        SELECT
+            id,
+			channel_name,
+			access_token,
+			refresh_token,
+			scope,
+			expires_in,
+			date_updated
+        FROM ` + credentialTable + `
+    `)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer rows.Close()
+
+	credentials := []Credential{}
+	for rows.Next() {
+		credential := Credential{}
+		err := rows.Scan(
+			&credential.ID,
+			&credential.ChannelName,
+			&credential.AccessToken,
+			&credential.RefreshToken,
+			&credential.Scope,
+			&credential.ExpiresIn,
+			&credential.DateUpdated,
+		)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+		credentials = append(credentials, credential)
+	}
+	if err := rows.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	return credentials
 }
