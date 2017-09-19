@@ -18,6 +18,7 @@ type Credential struct {
 	ID          int64
 	ChannelName string
 	DateUpdated time.Time
+	Email       string
 }
 
 // IsSet is a shortcut function to know if the credential is Found or Set
@@ -29,8 +30,8 @@ func (c Credential) IsSet() bool {
 func (s *Database) insertCredential(cs core.ChannelSummary, token core.TokenResponse) {
 	stmt, err := s.DB.Prepare(`
 		INSERT INTO ` + credentialTable + `
-		(channel_name, access_token, refresh_token, scope, expires_in)
-		VALUES(?, ?, ?, ?, ?)
+		(channel_name, access_token, refresh_token, scope, expires_in, email)
+		VALUES(?, ?, ?, ?, ?, ?)
 	`)
 	if err != nil {
 		log.Fatal(err)
@@ -42,6 +43,7 @@ func (s *Database) insertCredential(cs core.ChannelSummary, token core.TokenResp
 		token.RefreshToken,
 		token.Scope,
 		token.ExpiresIn,
+		cs.Email,
 	)
 
 	if err != nil {
@@ -51,13 +53,15 @@ func (s *Database) insertCredential(cs core.ChannelSummary, token core.TokenResp
 
 // Update credential, used by RecordToken
 func (s *Database) updateCredential(cs core.ChannelSummary, token core.TokenResponse) {
+	log.Println("Update credential: " + cs.Name)
 	stmt, err := s.DB.Prepare(`
 		UPDATE ` + credentialTable + ` SET
 			access_token=?,
 			refresh_token=?,
 			scope=?,
 			expires_in=?,
-			date_updated=NOW()
+			date_updated=NOW(),
+			email=?
 		WHERE channel_name=?
 	`)
 
@@ -70,6 +74,7 @@ func (s *Database) updateCredential(cs core.ChannelSummary, token core.TokenResp
 		token.RefreshToken,
 		token.Scope,
 		token.ExpiresIn,
+		cs.Email,
 		cs.Name,
 	)
 
@@ -82,7 +87,7 @@ func (s *Database) updateCredential(cs core.ChannelSummary, token core.TokenResp
 // If any error occure, log.Fatal is executed
 func (s *Database) RecordToken(cs core.ChannelSummary, token core.TokenResponse) {
 
-	credential := s.GetToken(cs.Name)
+	credential := s.GetCredential(cs.Name)
 
 	if credential.IsSet() {
 		s.updateCredential(cs, token)
@@ -91,9 +96,9 @@ func (s *Database) RecordToken(cs core.ChannelSummary, token core.TokenResponse)
 	}
 }
 
-// GetToken will retrieve the oauth2 token information returning a TokenResponse
+// GetCredential will retrieve the oauth2 token information returning a TokenResponse
 // as reference
-func (s *Database) GetToken(channelName string) Credential {
+func (s *Database) GetCredential(channelName string) Credential {
 
 	var credential = Credential{}
 
@@ -105,7 +110,8 @@ func (s *Database) GetToken(channelName string) Credential {
 			refresh_token,
 			scope,
 			expires_in,
-			date_updated
+			date_updated,
+			email
 		FROM `+credentialTable+`
 		WHERE channel_name = ?
 	`, channelName).Scan(
@@ -116,6 +122,7 @@ func (s *Database) GetToken(channelName string) Credential {
 		&credential.TokenResponse.Scope,
 		&credential.TokenResponse.ExpiresIn,
 		&credential.DateUpdated,
+		&credential.Email,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		log.Fatal(err)
@@ -134,7 +141,8 @@ func (s *Database) GetCredentials() []Credential {
 			refresh_token,
 			scope,
 			expires_in,
-			date_updated
+			date_updated,
+			email
         FROM ` + credentialTable + `
     `)
 
@@ -155,6 +163,7 @@ func (s *Database) GetCredentials() []Credential {
 			&credential.Scope,
 			&credential.ExpiresIn,
 			&credential.DateUpdated,
+			&credential.Email,
 		)
 
 		if err != nil {

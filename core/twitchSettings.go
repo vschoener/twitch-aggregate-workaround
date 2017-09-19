@@ -6,6 +6,10 @@ type TwitchSettings struct {
 	ClientSecret          string `yaml:"clientSecret"`
 	RedirectURL           string `yaml:"redirectURL"`
 	TwitchRequestSettings `yaml:"request"`
+
+	// Extra settings for server application
+	ErrorRedirectURL   string `yaml:"errorRedirectURL"`
+	SuccessRedirectURL string `yaml:"successRedirectURL"`
 }
 
 // TwitchRequestSettings settings
