@@ -16,8 +16,8 @@ func startAggregation(context aggregation.Context) {
 }
 
 func main() {
-	credential := credential.NewCredential()
-	credential.LoadSettings("./parameters.yml")
+	credential := credential.NewCredential(credential.YAMLLoader{}, "./parameters.yml")
+	credential.LoadSetting()
 
 	database := storage.NewDatabase()
 	database.Connect(credential.GetDB())

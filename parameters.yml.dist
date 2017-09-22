@@ -2,6 +2,8 @@ twitch:
     clientId: "Your client ID from Twitch app"
     clientSecret: "Your client secret from Twitch app"
     redirectURL: "Your redirect URL from twitch APP (used for authorization OAUTH2)"
+    errorRedirectURL: "Your landing / script error page"
+    successRedirectURL: "Your landing / script success page"
     request:
         url: https://api.twitch.tv/kraken
         headers:

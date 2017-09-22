@@ -1,39 +1,40 @@
 package credential
 
 import (
-	"io/ioutil"
-	"log"
-
 	"github.com/wonderstream/twitch/core"
 	"github.com/wonderstream/twitch/storage"
-
-	"gopkg.in/yaml.v2"
 )
 
 // Credential manager
 type Credential struct {
+	Loader Loader
+	Path   string
+	AppSetting
+}
+
+// AppSetting contains app parameters
+type AppSetting struct {
 	core.TwitchSettings      `yaml:"twitch"`
 	storage.DatabaseSettings `yaml:"database"`
 }
 
 // NewCredential constructor
-func NewCredential() *Credential {
-	return &Credential{}
+func NewCredential(loader Loader, path string) *Credential {
+	return &Credential{
+		Loader: loader,
+		Path:   path,
+		AppSetting: AppSetting{
+			TwitchSettings:   core.TwitchSettings{},
+			DatabaseSettings: storage.DatabaseSettings{},
+		},
+	}
 }
 
-// LoadSettings from .yml file
-func (c *Credential) LoadSettings(path string) *Credential {
-	raw, err := ioutil.ReadFile(path)
-	if err != nil {
-		log.Fatal(err)
-		return nil
-	}
+// LoadSetting from .yml file
+func (c *Credential) LoadSetting() error {
+	err := c.Loader.Load(c.Path, &c.AppSetting)
 
-	if err = yaml.Unmarshal(raw, &c); err != nil {
-		panic(err)
-	}
-
-	return c
+	return err
 }
 
 // GetTwitch settings
