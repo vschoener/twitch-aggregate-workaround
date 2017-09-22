@@ -10,21 +10,25 @@ import (
 
 // Server is use to listen as a webserver
 type Server struct {
-	localURL string
-	port     string
-	router   Router
+	ServerSetting
+	router Router
+}
+
+// ServerSetting will store parameters
+type ServerSetting struct {
+	Domain string `yaml:"domain"`
+	Port   string `yaml:"port"`
 }
 
 // NewServer is used to get an instance of WebServer
-func NewServer() *Server {
+func NewServer(st ServerSetting) *Server {
 	return &Server{
-		localURL: "localhost",
-		port:     "8080",
+		ServerSetting: st,
 	}
 }
 
 func (s Server) getAddress() (address string) {
-	return s.localURL + ":" + s.port
+	return s.Domain + ":" + s.Port
 }
 
 // Start will listen on the {localURL}:{port}

@@ -3,6 +3,7 @@ package credential
 import (
 	"github.com/wonderstream/twitch/core"
 	"github.com/wonderstream/twitch/storage"
+	"github.com/wonderstream/twitch/webserver"
 )
 
 // Credential manager
@@ -16,6 +17,7 @@ type Credential struct {
 type AppSetting struct {
 	core.TwitchSettings      `yaml:"twitch"`
 	storage.DatabaseSettings `yaml:"database"`
+	webserver.ServerSetting  `yaml:"webserver"`
 }
 
 // NewCredential constructor

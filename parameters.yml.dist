@@ -15,3 +15,7 @@ database:
     url: "url"
     port: 3306
     name: "Database name"
+
+webserver:
+    domain: localhost
+    port: 8080

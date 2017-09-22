@@ -18,6 +18,6 @@ func main() {
 
 	oauth2 := core.NewOAuth2(credential.GetTwitch())
 
-	webServer := webserver.NewServer()
+	webServer := webserver.NewServer(credential.ServerSetting)
 	webServer.Start(database, oauth2)
 }
