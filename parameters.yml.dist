@@ -19,3 +19,6 @@ database:
 webserver:
     domain: localhost
     port: 8080
+
+log:
+    key:

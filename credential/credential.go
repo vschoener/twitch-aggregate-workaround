@@ -2,12 +2,22 @@ package credential
 
 import (
 	"github.com/wonderstream/twitch/core"
+	"github.com/wonderstream/twitch/logger"
 	"github.com/wonderstream/twitch/storage"
 	"github.com/wonderstream/twitch/webserver"
 )
 
+// Interface contains contract
+type Interface interface {
+	LoadSetting() error
+	GetTwitch() *core.TwitchSettings
+	GetDB() *storage.DatabaseSettings
+	GetLog() *logger.Settings
+}
+
 // Credential manager
 type Credential struct {
+	Interface
 	Loader Loader
 	Path   string
 	AppSetting
@@ -18,6 +28,7 @@ type AppSetting struct {
 	core.TwitchSettings      `yaml:"twitch"`
 	storage.DatabaseSettings `yaml:"database"`
 	webserver.ServerSetting  `yaml:"webserver"`
+	LoggerSettings           logger.Settings `yaml:"log"`
 }
 
 // NewCredential constructor
@@ -47,4 +58,9 @@ func (c *Credential) GetTwitch() *core.TwitchSettings {
 // GetDB settings
 func (c *Credential) GetDB() *storage.DatabaseSettings {
 	return &c.DatabaseSettings
+}
+
+// GetLog settings
+func (c *Credential) GetLog() *logger.Settings {
+	return &c.LoggerSettings
 }

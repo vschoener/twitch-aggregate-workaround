@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/wonderstream/twitch/core"
+	"github.com/wonderstream/twitch/logger"
 	"github.com/wonderstream/twitch/storage"
 )
 
@@ -12,6 +13,7 @@ import (
 type Server struct {
 	ServerSetting
 	router Router
+	Logger logger.Logger
 }
 
 // ServerSetting will store parameters
@@ -38,6 +40,10 @@ func (s Server) Start(db *storage.Database, oauth2 *core.OAuth2) {
 	s.router.oauth2 = oauth2
 
 	s.router.Load()
-	log.Print("Running web server on " + s.getAddress())
-	log.Fatal(http.ListenAndServe(s.getAddress(), nil))
+	serverRunning := "Running web server on " + s.getAddress()
+	log.Print(serverRunning)
+	s.Logger.Log(serverRunning)
+	err := http.ListenAndServe(s.getAddress(), nil)
+	s.Logger.LogInterface(err)
+	log.Fatal(err)
 }

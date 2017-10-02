@@ -3,15 +3,16 @@ package storage
 import (
 	"database/sql"
 	"fmt"
-	"log"
 
 	// Only used to query database
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/wonderstream/twitch/logger"
 )
 
 // Database storage
 type Database struct {
-	DB *sql.DB
+	DB     *sql.DB
+	Logger logger.Logger
 }
 
 // DatabaseSettings info
@@ -30,6 +31,7 @@ func NewDatabase() *Database {
 
 // Connect to the server
 func (s *Database) Connect(dbSettings *DatabaseSettings) {
+
 	db, err := sql.Open(
 		"mysql",
 		fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
@@ -41,11 +43,12 @@ func (s *Database) Connect(dbSettings *DatabaseSettings) {
 		),
 	)
 	if err != nil {
+		s.Logger.Log(err.Error())
 		panic(err.Error())
 	}
 	s.DB = db
 
-	log.Println("Connected to " + dbSettings.URL)
+	s.Logger.Log("Database storage connected to " + dbSettings.URL)
 }
 
 // IsConnected return current status
