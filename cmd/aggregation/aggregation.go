@@ -25,6 +25,8 @@ func main() {
 	defer database.DB.Close()
 
 	oauth2 := core.NewOAuth2(credential.GetTwitch())
+
+	// TODO: It's not required not but we should itenarate by range later
 	credentials := database.GetCredentials()
 	context := aggregation.Context{
 		OAuth2:      oauth2,
