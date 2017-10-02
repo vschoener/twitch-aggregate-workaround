@@ -160,3 +160,69 @@ func (s *Database) GetChannels() []Channel {
 
 	return channels
 }
+
+// GetLastUpdatedChannelSummary returns the last recorded summary from Database
+func (s *Database) GetLastUpdatedChannelSummary(channelName string) Channel {
+	channel := Channel{}
+	err := s.DB.QueryRow(`
+        SELECT
+            id,
+            mature,
+            status,
+            broadcaster_language,
+            display_name,
+            game,
+            language,
+            _id,
+            name,
+            created_at,
+            updated_at,
+            partner,
+            logo,
+            video_banner,
+            profile_banner,
+            profile_banner_background_color,
+            url,
+            views,
+            followers,
+            broadcaster_type,
+            stream_key,
+            email,
+            date_add
+        FROM `+channelTable+`
+		WHERE name=?
+		ORDER BY id DESC
+		LIMIT 1
+    `, channelName).
+		Scan(
+			&channel.ID,
+			&channel.Mature,
+			&channel.Status,
+			&channel.BroadcasterLanguage,
+			&channel.DisplayName,
+			&channel.Game,
+			&channel.Language,
+			&channel.IDTwitch,
+			&channel.Name,
+			&channel.CreatedAt,
+			&channel.UpdatedAt,
+			&channel.Partner,
+			&channel.Logo,
+			&channel.VideoBanner,
+			&channel.ProfileBanner,
+			&channel.ProfileBannerBGColor,
+			&channel.URL,
+			&channel.Views,
+			&channel.Followers,
+			&channel.BroadcasterType,
+			&channel.StreamKey,
+			&channel.Email,
+			&channel.DateAdd,
+		)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return channel
+}

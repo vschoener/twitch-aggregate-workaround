@@ -12,6 +12,9 @@ type Channel struct {
 const (
 	// ChannelURI used when building Request
 	ChannelURI = "/channel"
+
+	// ChannelsURI used to build channels request
+	ChannelsURI = "/channels"
 )
 
 // ChannelSummary contains channel information
@@ -53,4 +56,14 @@ func (c Channel) RequestSummary() ChannelSummary {
 	c.sendRequest(ChannelURI, &channelSummary)
 
 	return channelSummary
+}
+
+// GetSubscriptionSummary return the subscription summary of the channel ID
+func (c Channel) GetSubscriptionSummary(channelID int64) SubscriptionSummary {
+
+	subscriptionSummary := SubscriptionSummary{}
+
+	url := fmt.Sprintf("%s/%d/subscriptions", ChannelsURI, channelID)
+	c.sendRequest(url, &subscriptionSummary)
+	return subscriptionSummary
 }
