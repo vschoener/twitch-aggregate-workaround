@@ -1,5 +1,9 @@
 package core
 
+import (
+	"fmt"
+)
+
 // Channel to manage anything about it
 type Channel struct {
 	*Request
@@ -18,7 +22,7 @@ type ChannelSummary struct {
 	DisplayName          string `json:"display_name"`
 	Game                 string `json:"game"`
 	Language             string `json:"language"`
-	IDTwitch             string `json:"_id"`
+	IDTwitch             int64  `json:"_id"`
 	Name                 string `json:"name"`
 	CreatedAt            string `json:"created_at"`
 	UpdatedAt            string `json:"updated_at"`
@@ -33,6 +37,13 @@ type ChannelSummary struct {
 	BroadcasterType      string `json:"broadcaster_type"`
 	StreamKey            string `json:"stream_key"`
 	Email                string `json:"email"`
+}
+
+// NewChannel constructor
+func NewChannel(r *Request) *Channel {
+	return &Channel{
+		Request: r,
+	}
 }
 
 // RequestSummary retrieve information

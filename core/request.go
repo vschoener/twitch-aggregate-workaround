@@ -3,6 +3,7 @@ package core
 import (
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -38,7 +39,8 @@ func (r *Request) computeHeader(httpRequest *http.Request) {
 func (r Request) sendRequest(URI string, definition interface{}) error {
 	client := &http.Client{}
 
-	httprRequest, _ := http.NewRequest(r.Method, r.BaseURL+URI, nil)
+	completeURL := r.BaseURL + URI
+	httprRequest, _ := http.NewRequest(r.Method, completeURL, nil)
 	r.computeHeader(httprRequest)
 
 	resp, err := client.Do(httprRequest)
