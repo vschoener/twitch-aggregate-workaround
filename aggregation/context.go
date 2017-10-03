@@ -2,6 +2,7 @@ package aggregation
 
 import (
 	"github.com/wonderstream/twitch/core"
+	"github.com/wonderstream/twitch/logger"
 	"github.com/wonderstream/twitch/storage"
 )
 
@@ -10,4 +11,5 @@ type Context struct {
 	OAuth2      *core.OAuth2
 	DB          *storage.Database
 	Credentials []storage.Credential
+	Loggger     logger.Logger
 }

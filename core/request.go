@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/wonderstream/twitch/logger"
 )
 
 // Request is used to manage and simplify request from API
@@ -13,6 +15,7 @@ type Request struct {
 	HeaderAccept        string
 	HeaderClientID      string
 	HeaderAuthorization string
+	Logger              logger.Logger
 }
 
 // NewRequest constructor
@@ -42,6 +45,9 @@ func (r Request) sendRequest(URI string, definition interface{}) error {
 	httprRequest, _ := http.NewRequest(r.Method, completeURL, nil)
 	r.computeHeader(httprRequest)
 
+	r.Logger.LogInterface(r)
+	r.Logger.LogInterface(httprRequest)
+
 	resp, err := client.Do(httprRequest)
 
 	if err != nil {
@@ -53,6 +59,7 @@ func (r Request) sendRequest(URI string, definition interface{}) error {
 	if err != nil {
 		return err
 	}
+	r.Logger.LogInterface(string(body))
 
 	err = json.Unmarshal([]byte(body), &definition)
 	if err != nil {

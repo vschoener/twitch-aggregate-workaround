@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"log"
+	"fmt"
 	"time"
 
 	"github.com/wonderstream/twitch/core"
@@ -20,40 +20,47 @@ type Channel struct {
 
 // StoreChannelSummary will add new entry everytime to have an history
 func (s *Database) StoreChannelSummary(channelSummary core.ChannelSummary) bool {
-	stmt, err := s.DB.Prepare(`
-        INSERT INTO ` + channelTable + `
-        (
-            mature,
-            status,
-            broadcaster_language,
-            display_name,
-            game,
-            language,
-            _id,
-            name,
-            created_at,
-            updated_at,
-            partner,
-            logo,
-            video_banner,
-            profile_banner,
-            profile_banner_background_color,
-            url,
-            views,
-            followers,
-            broadcaster_type,
-            stream_key,
-            email
-        )
-        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `)
+	queryLogger := QueryLogger{
+		Query: `
+	        INSERT INTO ` + channelTable + `
+	        (
+	            mature,
+	            status,
+	            broadcaster_language,
+	            display_name,
+	            game,
+	            language,
+	            _id,
+	            name,
+	            created_at,
+	            updated_at,
+	            partner,
+	            logo,
+	            video_banner,
+	            profile_banner,
+	            profile_banner_background_color,
+	            url,
+	            views,
+	            followers,
+	            broadcaster_type,
+	            stream_key,
+	            email
+	        )
+	        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		Parameters: map[string]interface{}{
+			"ChannelSummary": channelSummary,
+		},
+	}
+
+	stmt, err := s.DB.Prepare(queryLogger.Query)
 
 	if err != nil {
-		log.Fatal(err)
+		s.Logger.LogInterface(err)
+		return false
 	}
 
 	defer stmt.Close()
-
+	s.Logger.Log(fmt.Sprintf("GetLastUpdatedChannelSummary on %#v", queryLogger))
 	_, err = stmt.Exec(
 		channelSummary.Mature,
 		channelSummary.Status,
@@ -79,7 +86,8 @@ func (s *Database) StoreChannelSummary(channelSummary core.ChannelSummary) bool 
 	)
 
 	if err != nil {
-		log.Fatal(err)
+		s.Logger.LogInterface(err)
+		return false
 	}
 
 	return true
@@ -116,7 +124,8 @@ func (s *Database) GetChannels() []Channel {
     `, nil)
 
 	if err != nil {
-		log.Fatal(err)
+		s.Logger.LogInterface(err)
+		return nil
 	}
 
 	defer rows.Close()
@@ -150,12 +159,16 @@ func (s *Database) GetChannels() []Channel {
 			&channel.DateAdd,
 		)
 		if err != nil {
-			log.Fatal(err)
+			s.Logger.LogInterface(err)
+			return nil
 		}
+
+		s.Logger.LogInterface(rows)
 		channels = append(channels, channel)
 	}
 	if err := rows.Err(); err != nil {
-		log.Fatal(err)
+		s.Logger.LogInterface(err)
+		return nil
 	}
 
 	return channels
@@ -164,7 +177,7 @@ func (s *Database) GetChannels() []Channel {
 // GetLastUpdatedChannelSummary returns the last recorded summary from Database
 func (s *Database) GetLastUpdatedChannelSummary(channelName string) Channel {
 	channel := Channel{}
-	err := s.DB.QueryRow(`
+	query := `
         SELECT
             id,
             mature,
@@ -189,39 +202,48 @@ func (s *Database) GetLastUpdatedChannelSummary(channelName string) Channel {
             stream_key,
             email,
             date_add
-        FROM `+channelTable+`
+        FROM ` + channelTable + `
 		WHERE name=?
 		ORDER BY id DESC
 		LIMIT 1
-    `, channelName).
-		Scan(
-			&channel.ID,
-			&channel.Mature,
-			&channel.Status,
-			&channel.BroadcasterLanguage,
-			&channel.DisplayName,
-			&channel.Game,
-			&channel.Language,
-			&channel.IDTwitch,
-			&channel.Name,
-			&channel.CreatedAt,
-			&channel.UpdatedAt,
-			&channel.Partner,
-			&channel.Logo,
-			&channel.VideoBanner,
-			&channel.ProfileBanner,
-			&channel.ProfileBannerBGColor,
-			&channel.URL,
-			&channel.Views,
-			&channel.Followers,
-			&channel.BroadcasterType,
-			&channel.StreamKey,
-			&channel.Email,
-			&channel.DateAdd,
-		)
+	`
+	row := s.DB.QueryRow(query, channelName)
+
+	s.Logger.Log(fmt.Sprintf("GetLastUpdatedChannelSummary on %#v", QueryLogger{
+		Query: query,
+		Parameters: map[string]interface{}{
+			"name": channelName,
+		},
+	}))
+
+	err := row.Scan(
+		&channel.ID,
+		&channel.Mature,
+		&channel.Status,
+		&channel.BroadcasterLanguage,
+		&channel.DisplayName,
+		&channel.Game,
+		&channel.Language,
+		&channel.IDTwitch,
+		&channel.Name,
+		&channel.CreatedAt,
+		&channel.UpdatedAt,
+		&channel.Partner,
+		&channel.Logo,
+		&channel.VideoBanner,
+		&channel.ProfileBanner,
+		&channel.ProfileBannerBGColor,
+		&channel.URL,
+		&channel.Views,
+		&channel.Followers,
+		&channel.BroadcasterType,
+		&channel.StreamKey,
+		&channel.Email,
+		&channel.DateAdd,
+	)
 
 	if err != nil {
-		log.Fatal(err)
+		s.Logger.LogInterface(err)
 	}
 
 	return channel

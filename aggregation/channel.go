@@ -1,7 +1,10 @@
 package aggregation
 
 import (
+	"fmt"
 	"log"
+
+	"net/http"
 
 	"github.com/wonderstream/twitch/core"
 )
@@ -12,9 +15,11 @@ type Channel struct {
 }
 
 func (c Channel) updateChannelSummary() {
-	log.Println("Aggregate on Channel Summary...")
+	c.Loggger.Log("Aggregate on Channel Summary...")
 	for _, credential := range c.Context.Credentials {
 		twitchRequest := core.NewRequest(c.OAuth2, credential.TokenResponse)
+		twitchRequest.Logger = c.Loggger
+		twitchRequest.Method = http.MethodGet
 		channel := core.Channel{Request: twitchRequest}
 		channelSummary := channel.RequestSummary()
 		c.Context.DB.StoreChannelSummary(channelSummary)
@@ -22,20 +27,22 @@ func (c Channel) updateChannelSummary() {
 }
 
 func (c Channel) updateSubscriptionSummary() {
-	log.Println("Aggregate on Subscription Summary...")
+	c.Loggger.Log("Aggregate on Subscription Summary...")
 	for _, credential := range c.Context.Credentials {
 		twitchRequest := core.NewRequest(c.OAuth2, credential.TokenResponse)
+		twitchRequest.Logger = c.Loggger
+		twitchRequest.Method = http.MethodGet
 		cc := core.NewChannel(twitchRequest)
 		lastChannelEntry := c.Context.DB.GetLastUpdatedChannelSummary(credential.ChannelName)
 		s := cc.GetSubscriptionSummary(lastChannelEntry.IDTwitch)
 
-		log.Println("NOT USED: ", s)
+		log.Println(fmt.Sprintf("Not used: %#v", s))
 	}
 }
 
 // Process aggregation
 func (c Channel) Process() {
-	log.Println("Start Channel aggregation...")
+	c.Loggger.Log("Start Channel aggregation...")
 	c.updateChannelSummary()
 	c.updateSubscriptionSummary()
 }

@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/bsphere/le_go"
@@ -22,11 +23,13 @@ type Logger interface {
 type LogEntry struct {
 	Logger
 	Client *le_go.Logger
+	Settings
 }
 
 // Settings contains credential
 type Settings struct {
-	Key string `yaml:"key"`
+	Key     string `yaml:"key"`
+	Verbose bool   `yaml:"verbose"`
 }
 
 // NewLogger constructor
@@ -37,6 +40,8 @@ func NewLogger() Logger {
 // Connect connect to LogEntries server
 func (le *LogEntry) Connect(s Settings) {
 
+	le.Settings = s
+	log.Println(le.Settings)
 	if len(s.Key) == 0 {
 		le.Client = nil
 		return
@@ -60,6 +65,10 @@ func (le *LogEntry) Log(message string) error {
 		return nil
 	}
 
+	if le.Verbose {
+		log.Println(message)
+	}
+
 	le.Client.Println(message)
 
 	return nil
@@ -67,11 +76,8 @@ func (le *LogEntry) Log(message string) error {
 
 // LogInterface complex struct
 func (le *LogEntry) LogInterface(i interface{}) error {
-	if le.Client == nil {
-		return nil
-	}
 
-	le.Log(i.(string))
+	le.Log(fmt.Sprintf("%#v", i))
 
 	return nil
 }

@@ -24,6 +24,12 @@ type DatabaseSettings struct {
 	Name     string `yaml:"name"`
 }
 
+// QueryLogger used to log or debug query
+type QueryLogger struct {
+	Query      string
+	Parameters map[string]interface{}
+}
+
 // NewDatabase load the object with credential
 func NewDatabase() *Database {
 	return &Database{}
