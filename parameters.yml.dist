@@ -21,5 +21,6 @@ webserver:
     port: 8080
 
 log:
+    state: false
     key:
     verborse: false

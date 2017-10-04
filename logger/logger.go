@@ -28,6 +28,7 @@ type LogEntry struct {
 
 // Settings contains credential
 type Settings struct {
+	State   bool   `yaml:"state"`
 	Key     string `yaml:"key"`
 	Verbose bool   `yaml:"verbose"`
 }
@@ -41,7 +42,6 @@ func NewLogger() Logger {
 func (le *LogEntry) Connect(s Settings) {
 
 	le.Settings = s
-	log.Println(le.Settings)
 	if len(s.Key) == 0 {
 		le.Client = nil
 		return
@@ -60,13 +60,17 @@ func (le *LogEntry) Connect(s Settings) {
 // Log simple string
 func (le *LogEntry) Log(message string) error {
 
-	if le.Client == nil {
-		log.Println("No log for " + message)
+	if le.Verbose {
+		log.Println(message)
+	}
+
+	if false == le.State {
 		return nil
 	}
 
-	if le.Verbose {
-		log.Println(message)
+	if le.Client == nil {
+		log.Println("No log for " + message)
+		return nil
 	}
 
 	le.Client.Println(message)

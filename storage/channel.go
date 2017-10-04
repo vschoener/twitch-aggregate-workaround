@@ -60,7 +60,7 @@ func (s *Database) StoreChannelSummary(channelSummary core.ChannelSummary) bool 
 	}
 
 	defer stmt.Close()
-	s.Logger.Log(fmt.Sprintf("GetLastUpdatedChannelSummary on %#v", queryLogger))
+	s.Logger.Log(fmt.Sprintf("StoreChannelSummary on %#v", queryLogger))
 	_, err = stmt.Exec(
 		channelSummary.Mature,
 		channelSummary.Status,

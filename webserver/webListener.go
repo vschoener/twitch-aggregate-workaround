@@ -22,6 +22,10 @@ type ServerSetting struct {
 	Port   string `yaml:"port"`
 }
 
+func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	return
+}
+
 // NewServer is used to get an instance of WebServer
 func NewServer(st ServerSetting) *Server {
 	return &Server{
@@ -38,12 +42,11 @@ func (s Server) Start(db *storage.Database, oauth2 *core.OAuth2) {
 	// Add require object
 	s.router.db = db
 	s.router.oauth2 = oauth2
+	s.router.logger = s.Logger
 
 	s.router.Load()
-	serverRunning := "Running web server on " + s.getAddress()
-	log.Print(serverRunning)
-	s.Logger.Log(serverRunning)
-	err := http.ListenAndServe(s.getAddress(), nil)
+	s.Logger.Log("Running web server on " + s.getAddress())
+	err := http.ListenAndServe(s.getAddress(), s.router.Mux)
 	s.Logger.LogInterface(err)
 	log.Fatal(err)
 }

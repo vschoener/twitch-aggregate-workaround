@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/wonderstream/twitch/core"
+	"github.com/wonderstream/twitch/logger"
 	"github.com/wonderstream/twitch/storage"
 )
 
@@ -23,7 +24,7 @@ func NewAuthAggregation(oauth2 *core.OAuth2, db *storage.Database) *Auth {
 
 // HandleHTTPRequest process the request coming from Twitch to save the
 // the information into the storage
-func (a *Auth) HandleHTTPRequest(w http.ResponseWriter, req *http.Request) {
+func (a *Auth) HandleHTTPRequest(w http.ResponseWriter, req *http.Request, logger logger.Logger) {
 	token, err := a.oauth2.RequestToken(req)
 
 	if err != nil {
@@ -32,6 +33,8 @@ func (a *Auth) HandleHTTPRequest(w http.ResponseWriter, req *http.Request) {
 	}
 
 	twitchRequest := core.NewRequest(a.oauth2, token)
+	twitchRequest.Logger = logger
+
 	channel := core.Channel{Request: twitchRequest}
 	channelSummary := channel.RequestSummary()
 	a.db.RecordToken(channelSummary, token)

@@ -45,8 +45,10 @@ func (r Request) sendRequest(URI string, definition interface{}) error {
 	httprRequest, _ := http.NewRequest(r.Method, completeURL, nil)
 	r.computeHeader(httprRequest)
 
-	r.Logger.LogInterface(r)
-	r.Logger.LogInterface(httprRequest)
+	if r.Logger != nil {
+		r.Logger.LogInterface(r)
+		r.Logger.LogInterface(httprRequest)
+	}
 
 	resp, err := client.Do(httprRequest)
 
@@ -59,7 +61,10 @@ func (r Request) sendRequest(URI string, definition interface{}) error {
 	if err != nil {
 		return err
 	}
-	r.Logger.LogInterface(string(body))
+
+	if r.Logger != nil {
+		r.Logger.LogInterface(string(body))
+	}
 
 	err = json.Unmarshal([]byte(body), &definition)
 	if err != nil {
