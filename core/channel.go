@@ -25,7 +25,7 @@ type ChannelSummary struct {
 	DisplayName          string `json:"display_name"`
 	Game                 string `json:"game"`
 	Language             string `json:"language"`
-	IDTwitch             int64  `json:"_id"`
+	IDTwitch             int64  `json:"_id,string"`
 	Name                 string `json:"name"`
 	CreatedAt            string `json:"created_at"`
 	UpdatedAt            string `json:"updated_at"`
