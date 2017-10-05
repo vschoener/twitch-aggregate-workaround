@@ -65,9 +65,19 @@ func NewOAuth2(ts *TwitchSettings) *OAuth2 {
 	}
 }
 
-// RequestToken from twitch using the last request
-func (oauth2 *OAuth2) RequestToken(responseRequest *http.Request) (TokenResponse, error) {
-	authorizationCode := responseRequest.URL.Query().Get("code")
+// RequestToken has to request a token using Query "code" paramater available
+// inside the twRequest (request sent by twitch when the user is redirected)
+func (oauth2 *OAuth2) RequestToken(twRequest *http.Request) (TokenResponse, error) {
+	authorizationCode := twRequest.URL.Query().Get("code")
+	tokenResponse := TokenResponse{}
+
+	if len(authorizationCode) == 0 {
+		err := errors.New("The query 'code' parameter is missing, please try again or contact us at contact@wonderstream.tv")
+		if twError := twRequest.URL.Query().Get("error"); len(twError) > 0 {
+			err = errors.New(twRequest.URL.Query().Get("error_description"))
+		}
+		return tokenResponse, err
+	}
 
 	values := map[string]string{
 		"client_id":     oauth2.ClientID,
@@ -80,15 +90,14 @@ func (oauth2 *OAuth2) RequestToken(responseRequest *http.Request) (TokenResponse
 	jsonRaw, _ := json.Marshal(values)
 	resp, err := http.Post("https://api.twitch.tv/api/oauth2/token", "application/json", bytes.NewBuffer(jsonRaw))
 	if err != nil {
-		panic(err)
+		return tokenResponse, err
 	}
 	defer resp.Body.Close()
 
-	tokenResponse := TokenResponse{}
 	body, _ := ioutil.ReadAll(resp.Body)
-	error := json.Unmarshal(body, &tokenResponse)
-	if error != nil {
-		panic(error)
+	err = json.Unmarshal(body, &tokenResponse)
+	if err != nil {
+		return tokenResponse, err
 	}
 
 	if len(tokenResponse.AccessToken) <= 0 {

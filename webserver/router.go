@@ -75,7 +75,12 @@ func (r Router) home(w http.ResponseWriter, req *http.Request) {
 // responseOAuthTwitch
 func (r Router) responseOAuthTwitch(w http.ResponseWriter, req *http.Request) {
 	authAggregation := aggregation.NewAuthAggregation(r.oauth2, r.db)
-	authAggregation.HandleHTTPRequest(w, req, r.logger)
+	err := authAggregation.HandleHTTPRequest(w, req, r.logger)
+
+	if err != nil {
+		http.Redirect(w, req, r.oauth2.ErrorRedirectURL+"?error="+err.Error(), http.StatusSeeOther)
+		return
+	}
 	http.Redirect(w, req, r.oauth2.SuccessRedirectURL, http.StatusSeeOther)
 }
 
@@ -83,7 +88,14 @@ func (r Router) responseOAuthTwitch(w http.ResponseWriter, req *http.Request) {
 func (r Router) connectToTwitch(w http.ResponseWriter, req *http.Request) {
 	if req.Method == http.MethodGet {
 		template := core.GetTemplate(core.AuthFormTemplate)
-		template.Execute(w, r.oauth2.TwitchSettings)
+		s := struct {
+			Error    string
+			Settings *core.TwitchSettings
+		}{
+			Error:    req.URL.Query().Get("error"),
+			Settings: r.oauth2.TwitchSettings,
+		}
+		template.Execute(w, s)
 	} else {
 		w.Write([]byte("This method is not handled"))
 	}

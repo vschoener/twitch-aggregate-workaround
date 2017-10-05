@@ -27,15 +27,31 @@ func (c Credential) IsSet() bool {
 }
 
 // Add new credential, used by RecordToken
-func (s *Database) insertCredential(cs core.ChannelSummary, token core.TokenResponse) {
-	stmt, err := s.DB.Prepare(`
-		INSERT INTO ` + credentialTable + `
-		(channel_name, access_token, refresh_token, scope, expires_in, email)
-		VALUES(?, ?, ?, ?, ?, ?)
-	`)
-	if err != nil {
-		log.Fatal(err)
+func (s *Database) insertCredential(cs core.ChannelSummary, token core.TokenResponse) error {
+	queryLogger := QueryLogger{
+		Query: `
+			INSERT INTO ` + credentialTable + `
+			(channel_name, access_token, refresh_token, scope, expires_in, email)
+			VALUES(?, ?, ?, ?, ?, ?)
+		`,
+		Parameters: map[string]interface{}{
+			"channel_name":  cs.Name,
+			"access_token":  token.AccessToken,
+			"refresh_token": token.RefreshToken,
+			"scope":         token.Scope,
+			"expires_in":    token.ExpiresIn,
+			"email":         cs.Email,
+		},
 	}
+
+	s.Logger.LogInterface(queryLogger)
+	stmt, err := s.DB.Prepare(queryLogger.Query)
+
+	if err != nil {
+		s.Logger.Log(err.Error())
+		return err
+	}
+
 	defer stmt.Close()
 	_, err = stmt.Exec(
 		cs.Name,
@@ -47,27 +63,44 @@ func (s *Database) insertCredential(cs core.ChannelSummary, token core.TokenResp
 	)
 
 	if err != nil {
-		log.Fatal(err)
+		s.Logger.Log(err.Error())
+		return err
 	}
+
+	return nil
 }
 
 // Update credential, used by RecordToken
-func (s *Database) updateCredential(cs core.ChannelSummary, token core.TokenResponse) {
-	log.Println("Update credential: " + cs.Name)
-	stmt, err := s.DB.Prepare(`
-		UPDATE ` + credentialTable + ` SET
-			access_token=?,
-			refresh_token=?,
-			scope=?,
-			expires_in=?,
-			date_updated=NOW(),
-			email=?
-		WHERE channel_name=?
-	`)
+func (s *Database) updateCredential(cs core.ChannelSummary, token core.TokenResponse) error {
+	queryLogger := QueryLogger{
+		Query: `
+			UPDATE ` + credentialTable + ` SET
+				access_token=?,
+				refresh_token=?,
+				scope=?,
+				expires_in=?,
+				date_updated=NOW(),
+				email=?
+			WHERE channel_name=?
+		`,
+		Parameters: map[string]interface{}{
+			"access_token":  token.AccessToken,
+			"refresh_token": token.RefreshToken,
+			"scope":         token.Scope,
+			"expires_in":    token.ExpiresIn,
+			"date_updated":  "NOW()",
+			"email":         cs.Email,
+		},
+	}
+
+	s.Logger.LogInterface(queryLogger)
+	stmt, err := s.DB.Prepare(queryLogger.Query)
 
 	if err != nil {
-		log.Fatal(err)
+		s.Logger.Log(err.Error())
+		return err
 	}
+
 	defer stmt.Close()
 	_, err = stmt.Exec(
 		token.AccessToken,
@@ -79,21 +112,22 @@ func (s *Database) updateCredential(cs core.ChannelSummary, token core.TokenResp
 	)
 
 	if err != nil {
-		log.Fatal(err)
+		s.Logger.Log(err.Error())
+		return err
 	}
+
+	return nil
 }
 
 // RecordToken used to save token information inside the database
 // If any error occure, log.Fatal is executed
-func (s *Database) RecordToken(cs core.ChannelSummary, token core.TokenResponse) {
-
+func (s *Database) RecordToken(cs core.ChannelSummary, token core.TokenResponse) error {
 	credential := s.GetCredential(cs.Name)
-
 	if credential.IsSet() {
-		s.updateCredential(cs, token)
-	} else {
-		s.insertCredential(cs, token)
+		return s.updateCredential(cs, token)
 	}
+
+	return s.insertCredential(cs, token)
 }
 
 // GetCredential will retrieve the oauth2 token information returning a TokenResponse

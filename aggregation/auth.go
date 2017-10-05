@@ -23,13 +23,13 @@ func NewAuthAggregation(oauth2 *core.OAuth2, db *storage.Database) *Auth {
 }
 
 // HandleHTTPRequest process the request coming from Twitch to save the
-// the information into the storage
-func (a *Auth) HandleHTTPRequest(w http.ResponseWriter, req *http.Request, logger logger.Logger) {
-	token, err := a.oauth2.RequestToken(req)
+// the information into the storage.
+// This function should be reach one the use has accepted the app rights
+func (a *Auth) HandleHTTPRequest(w http.ResponseWriter, twRequest *http.Request, logger logger.Logger) error {
+	token, err := a.oauth2.RequestToken(twRequest)
 
 	if err != nil {
-		http.Redirect(w, req, a.oauth2.ErrorRedirectURL, http.StatusUnauthorized)
-		return
+		return err
 	}
 
 	twitchRequest := core.NewRequest(a.oauth2, token)
@@ -38,4 +38,6 @@ func (a *Auth) HandleHTTPRequest(w http.ResponseWriter, req *http.Request, logge
 	channel := core.Channel{Request: twitchRequest}
 	channelSummary := channel.RequestSummary()
 	a.db.RecordToken(channelSummary, token)
+
+	return nil
 }
