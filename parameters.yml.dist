@@ -4,6 +4,14 @@ twitch:
     redirectURL: "Your redirect URL from twitch APP (used for authorization OAUTH2)"
     errorRedirectURL: "Your landing / script error page"
     successRedirectURL: "Your landing / script success page"
+    scopes:
+        - user_subscriptions
+        - channel_subscriptions
+        - channel_read
+        - channel_feed_read
+        - user_blocks_read
+        - user_read
+        - viewing_activity_read
     request:
         url: https://api.twitch.tv/kraken
         headers:

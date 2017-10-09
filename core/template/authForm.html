@@ -8,6 +8,6 @@
     <input type="hidden" name="client_id" value="{{.Settings.ClientID}}">
     <input type="hidden" name="redirect_uri" value="{{.Settings.RedirectURL}}">
     <input type="hidden" name="response_type" value="code">
-    <input type="hidden" name="scope" value="user_subscriptions channel_subscriptions channel_read channel_feed_read user_blocks_read user_read viewing_activity_read">
+    <input type="hidden" name="scope" value="{{.Settings.TwitchRequestSettings.FormatScopes()}}">
     <input type="submit" value="Submit">
 </form>
