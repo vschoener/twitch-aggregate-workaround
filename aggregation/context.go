@@ -12,4 +12,5 @@ type Context struct {
 	DB          *storage.Database
 	Credentials []storage.Credential
 	Loggger     logger.Logger
+	Request     *core.Request
 }

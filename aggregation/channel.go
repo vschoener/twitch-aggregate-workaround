@@ -17,7 +17,7 @@ type Channel struct {
 func (c Channel) updateChannelSummary() {
 	c.Loggger.Log("Aggregate on Channel Summary...")
 	for _, credential := range c.Context.Credentials {
-		twitchRequest := core.NewRequest(c.OAuth2, credential.TokenResponse)
+		twitchRequest := core.NewUserAccessTokenRequest(c.OAuth2, credential.TokenResponse)
 		twitchRequest.Logger = c.Loggger
 		twitchRequest.Method = http.MethodGet
 		channel := core.Channel{Request: twitchRequest}
@@ -29,7 +29,7 @@ func (c Channel) updateChannelSummary() {
 func (c Channel) updateSubscriptionSummary() {
 	c.Loggger.Log("Aggregate on Subscription Summary...")
 	for _, credential := range c.Context.Credentials {
-		twitchRequest := core.NewRequest(c.OAuth2, credential.TokenResponse)
+		twitchRequest := core.NewUserAccessTokenRequest(c.OAuth2, credential.TokenResponse)
 		twitchRequest.Logger = c.Loggger
 		twitchRequest.Method = http.MethodGet
 		cc := core.NewChannel(twitchRequest)

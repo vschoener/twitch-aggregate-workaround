@@ -32,7 +32,7 @@ func (a *Auth) HandleHTTPRequest(w http.ResponseWriter, twRequest *http.Request,
 		return err
 	}
 
-	twitchRequest := core.NewRequest(a.oauth2, token)
+	twitchRequest := core.NewUserAccessTokenRequest(a.oauth2, token)
 	twitchRequest.Logger = logger
 
 	channel := core.Channel{Request: twitchRequest}

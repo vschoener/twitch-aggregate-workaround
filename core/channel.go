@@ -53,7 +53,7 @@ func NewChannel(r *Request) *Channel {
 func (c Channel) RequestSummary() ChannelSummary {
 
 	channelSummary := ChannelSummary{}
-	c.sendRequest(ChannelURI, &channelSummary)
+	c.SendRequest(ChannelURI, &channelSummary)
 
 	return channelSummary
 }
@@ -64,6 +64,6 @@ func (c Channel) GetSubscriptionSummary(channelID int64) SubscriptionSummary {
 	subscriptionSummary := SubscriptionSummary{}
 
 	url := fmt.Sprintf("%s/%d/subscriptions", ChannelsURI, channelID)
-	c.sendRequest(url, &subscriptionSummary)
+	c.SendRequest(url, &subscriptionSummary)
 	return subscriptionSummary
 }

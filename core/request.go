@@ -15,16 +15,33 @@ type Request struct {
 	HeaderAccept        string
 	HeaderClientID      string
 	HeaderAuthorization string
+	RequireToken        bool
 	Logger              logger.Logger
 }
 
-// NewRequest constructor
-func NewRequest(oauth2 *OAuth2, t TokenResponse) *Request {
+// NewUserAccessTokenRequest constructor to build Request containing User Token
+// information
+func NewUserAccessTokenRequest(oauth2 *OAuth2, t TokenResponse) *Request {
 	request := &Request{
 		BaseURL:             oauth2.URL,
+		Method:              http.MethodGet,
 		HeaderAccept:        oauth2.TwitchSettings.Headers["Accept"],
 		HeaderClientID:      oauth2.TwitchSettings.ClientID,
 		HeaderAuthorization: t.AccessToken,
+		RequireToken:        true,
+	}
+
+	return request
+}
+
+// NewRequest constructor to build a Request without any User Token information
+func NewRequest(oauth2 *OAuth2) *Request {
+	request := &Request{
+		BaseURL:        oauth2.URL,
+		Method:         http.MethodGet,
+		HeaderAccept:   oauth2.TwitchSettings.Headers["Accept"],
+		HeaderClientID: oauth2.TwitchSettings.ClientID,
+		RequireToken:   false,
 	}
 
 	return request
@@ -34,11 +51,14 @@ func NewRequest(oauth2 *OAuth2, t TokenResponse) *Request {
 func (r *Request) computeHeader(httpRequest *http.Request) {
 	httpRequest.Header.Add("Accept", r.HeaderAccept)
 	httpRequest.Header.Add("Client-ID", r.HeaderClientID)
-	httpRequest.Header.Add("Authorization", "OAuth "+r.HeaderAuthorization)
+
+	if r.RequireToken {
+		httpRequest.Header.Add("Authorization", "OAuth "+r.HeaderAuthorization)
+	}
 }
 
-// Request send the request with a json structure definition be populated and returned
-func (r Request) sendRequest(URI string, definition interface{}) error {
+// SendRequest send the request with a json structure definition be populated and returned
+func (r Request) SendRequest(URI string, definition interface{}) error {
 	client := &http.Client{}
 
 	completeURL := r.BaseURL + URI
