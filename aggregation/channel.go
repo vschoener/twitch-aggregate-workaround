@@ -40,9 +40,24 @@ func (c Channel) updateSubscriptionSummary() {
 	}
 }
 
+// GetLastStreamSession retrieves last stream video information
+func (c Channel) GetLastStreamSession() {
+	channels := c.DB.GetChannels()
+	for _, channel := range channels {
+		channelAPI := core.Channel{
+			Request: c.Request,
+		}
+		videos := channelAPI.GetVideosFromID(channel.IDTwitch, 100)
+		for _, video := range videos {
+			c.Context.DB.RegisterVideoToChannel(channel.IDTwitch, video)
+		}
+	}
+}
+
 // Process aggregation
 func (c Channel) Process() {
 	c.Loggger.Log("Start Channel aggregation...")
 	c.updateChannelSummary()
 	c.updateSubscriptionSummary()
+	c.GetLastStreamSession()
 }

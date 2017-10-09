@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"time"
 )
 
 // Channel to manage anything about it
@@ -42,6 +43,28 @@ type ChannelSummary struct {
 	Email                string `json:"email"`
 }
 
+// ChannelVideo contains the video information of this channel
+type ChannelVideo struct {
+	Title           string    `json:"title"`
+	Description     string    `json:"description"`
+	DescriptionHTML string    `json:"description_html"`
+	BrodcastID      int64     `json:"broadcast_id"`
+	BrodcastType    string    `json:"broadcast_type"`
+	Status          string    `json:"status"`
+	TagList         string    `json:"tag_list"`
+	Views           int64     `json:"views"`
+	URL             string    `json:"url"`
+	Language        string    `json:"language"`
+	CreatedAt       time.Time `json:"created_at"`
+	Viewable        string    `json:"viewable"`
+	ViewableAt      string    `json:"viewable_at"`
+	PublishedAt     time.Time `json:"published_at"`
+	ID              string    `json:"_id"`
+	RecordedAt      time.Time `json:"recorded_at"`
+	Game            string    `json:"game"`
+	Length          int64     `json:"length"`
+}
+
 // NewChannel constructor
 func NewChannel(r *Request) *Channel {
 	return &Channel{
@@ -56,6 +79,20 @@ func (c Channel) RequestSummary() ChannelSummary {
 	c.SendRequest(ChannelURI, &channelSummary)
 
 	return channelSummary
+}
+
+// GetVideosFromIDResult contains result from request of GetVideosFromID
+type GetVideosFromIDResult struct {
+	Total  int16 `json:"_total"`
+	Videos []ChannelVideo
+}
+
+// GetVideosFromID returns the videos list of the channel ID
+func (c Channel) GetVideosFromID(channelID int64, total int) []ChannelVideo {
+	result := GetVideosFromIDResult{}
+
+	c.SendRequest(fmt.Sprintf("%s/%d/videos?limit=%d", ChannelsURI, channelID, total), &result)
+	return result.Videos
 }
 
 // GetSubscriptionSummary return the subscription summary of the channel ID

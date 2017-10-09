@@ -15,6 +15,17 @@ func startAggregation(context aggregation.Context) {
 	}
 
 	channel.Process()
+
+	// streams := aggregation.Streams{
+	// 	Context: context,
+	// }
+	// streams.Process()
+
+	// users := aggregation.Users{
+	// 	Context: context,
+	// }
+	//
+	// users.Process()
 }
 
 func main() {
@@ -38,11 +49,15 @@ func main() {
 	// TODO: It's not required now but we should itenarate by range later
 	credentials := database.GetCredentials()
 
+	twitchRequest := core.NewRequest(oauth2)
+	twitchRequest.Logger = l
+
 	context := aggregation.Context{
 		OAuth2:      oauth2,
 		DB:          database,
 		Credentials: credentials,
 		Loggger:     l,
+		Request:     twitchRequest,
 	}
 
 	l.Log("Starting aggregation")
