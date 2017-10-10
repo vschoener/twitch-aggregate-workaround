@@ -14,11 +14,12 @@ const (
 
 // Credential map the database table
 type Credential struct {
-	core.TokenResponse
 	ID          int64
 	ChannelName string
-	DateUpdated time.Time
+	ChannelID   int64
 	Email       string
+	DateUpdated time.Time
+	core.TokenResponse
 }
 
 // IsSet is a shortcut function to know if the credential is Found or Set
@@ -26,16 +27,24 @@ func (c Credential) IsSet() bool {
 	return len(c.ChannelName) > 0
 }
 
-// Add new credential, used by RecordToken
-func (s *Database) insertCredential(cs core.ChannelSummary, token core.TokenResponse) error {
+// SaveCredential saves or updates the credential
+func (s *Database) SaveCredential(cs core.ChannelSummary, token core.TokenResponse) error {
 	queryLogger := QueryLogger{
 		Query: `
 			INSERT INTO ` + credentialTable + `
-			(channel_name, access_token, refresh_token, scope, expires_in, email)
-			VALUES(?, ?, ?, ?, ?, ?)
+			(channel_name, channel_id, access_token, refresh_token, scope, expires_in, email)
+			VALUES(?, ?, ?, ?, ?, ?, ?)
+			ON DUPLICATE KEY UPDATE
+				channel_name = ?,
+				access_token = ?,
+				refresh_token = ?,
+				scope = ?,
+				expires_in = ?,
+				email = ?
 		`,
 		Parameters: map[string]interface{}{
 			"channel_name":  cs.Name,
+			"channel_id":    cs.IDTwitch,
 			"access_token":  token.AccessToken,
 			"refresh_token": token.RefreshToken,
 			"scope":         token.Scope,
@@ -55,60 +64,18 @@ func (s *Database) insertCredential(cs core.ChannelSummary, token core.TokenResp
 	defer stmt.Close()
 	_, err = stmt.Exec(
 		cs.Name,
-		token.AccessToken,
-		token.RefreshToken,
-		token.Scope,
-		token.ExpiresIn,
-		cs.Email,
-	)
-
-	if err != nil {
-		s.Logger.Log(err.Error())
-		return err
-	}
-
-	return nil
-}
-
-// Update credential, used by RecordToken
-func (s *Database) updateCredential(cs core.ChannelSummary, token core.TokenResponse) error {
-	queryLogger := QueryLogger{
-		Query: `
-			UPDATE ` + credentialTable + ` SET
-				access_token=?,
-				refresh_token=?,
-				scope=?,
-				expires_in=?,
-				date_updated=NOW(),
-				email=?
-			WHERE channel_name=?
-		`,
-		Parameters: map[string]interface{}{
-			"access_token":  token.AccessToken,
-			"refresh_token": token.RefreshToken,
-			"scope":         token.Scope,
-			"expires_in":    token.ExpiresIn,
-			"date_updated":  "NOW()",
-			"email":         cs.Email,
-		},
-	}
-
-	s.Logger.LogInterface(queryLogger)
-	stmt, err := s.DB.Prepare(queryLogger.Query)
-
-	if err != nil {
-		s.Logger.Log(err.Error())
-		return err
-	}
-
-	defer stmt.Close()
-	_, err = stmt.Exec(
+		cs.IDTwitch,
 		token.AccessToken,
 		token.RefreshToken,
 		token.Scope,
 		token.ExpiresIn,
 		cs.Email,
 		cs.Name,
+		token.AccessToken,
+		token.RefreshToken,
+		token.Scope,
+		token.ExpiresIn,
+		cs.Email,
 	)
 
 	if err != nil {
@@ -117,17 +84,6 @@ func (s *Database) updateCredential(cs core.ChannelSummary, token core.TokenResp
 	}
 
 	return nil
-}
-
-// RecordToken used to save token information inside the database
-// If any error occure, log.Fatal is executed
-func (s *Database) RecordToken(cs core.ChannelSummary, token core.TokenResponse) error {
-	credential := s.GetCredential(cs.Name)
-	if credential.IsSet() {
-		return s.updateCredential(cs, token)
-	}
-
-	return s.insertCredential(cs, token)
 }
 
 // GetCredential will retrieve the oauth2 token information returning a TokenResponse
@@ -140,6 +96,7 @@ func (s *Database) GetCredential(channelName string) Credential {
 		SELECT
 			id,
 			channel_name,
+			channel_id,
 			access_token,
 			refresh_token,
 			scope,
@@ -151,6 +108,7 @@ func (s *Database) GetCredential(channelName string) Credential {
 	`, channelName).Scan(
 		&credential.ID,
 		&credential.ChannelName,
+		&credential.ChannelID,
 		&credential.TokenResponse.AccessToken,
 		&credential.TokenResponse.RefreshToken,
 		&credential.TokenResponse.Scope,
@@ -171,6 +129,7 @@ func (s *Database) GetCredentials() []Credential {
         SELECT
             id,
 			channel_name,
+			channel_id,
 			access_token,
 			refresh_token,
 			scope,
@@ -192,6 +151,7 @@ func (s *Database) GetCredentials() []Credential {
 		err := rows.Scan(
 			&credential.ID,
 			&credential.ChannelName,
+			&credential.ChannelID,
 			&credential.AccessToken,
 			&credential.RefreshToken,
 			&credential.Scope,

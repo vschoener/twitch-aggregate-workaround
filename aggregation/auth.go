@@ -37,7 +37,8 @@ func (a *Auth) HandleHTTPRequest(w http.ResponseWriter, twRequest *http.Request,
 
 	channel := core.Channel{Request: twitchRequest}
 	channelSummary := channel.RequestSummary()
-	a.db.RecordToken(channelSummary, token)
+	a.db.SaveCredential(channelSummary, token)
+	a.db.StoreChannelSummary(channelSummary)
 
 	return nil
 }

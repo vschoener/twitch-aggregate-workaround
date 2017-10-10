@@ -24,7 +24,7 @@ func (d *Database) StoreUsers(user users.User) bool {
 		Query: `
             INSERT INTO ` + usersTable + `
             (
-                users_id,
+                user_id,
                 bio,
                 display_name,
                 logo,
