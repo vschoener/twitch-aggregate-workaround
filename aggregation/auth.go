@@ -4,8 +4,11 @@ import (
 	"net/http"
 
 	"github.com/wonderstream/twitch/core"
+	"github.com/wonderstream/twitch/core/service"
 	"github.com/wonderstream/twitch/logger"
 	"github.com/wonderstream/twitch/storage"
+	"github.com/wonderstream/twitch/storage/repository"
+	"github.com/wonderstream/twitch/storage/transformer"
 )
 
 // Auth aggregation handler
@@ -35,10 +38,22 @@ func (a *Auth) HandleHTTPRequest(w http.ResponseWriter, twRequest *http.Request,
 	twitchRequest := core.NewUserAccessTokenRequest(a.oauth2, token)
 	twitchRequest.Logger = logger
 
-	channel := core.Channel{Request: twitchRequest}
-	channelSummary := channel.RequestSummary()
-	a.db.SaveCredential(channelSummary, token)
-	a.db.StoreChannelSummary(channelSummary)
+	channelService := service.ChannelService{
+		Request: twitchRequest,
+	}
+
+	channel := channelService.GetInfo()
+	commonRepository := repository.NewRepository(a.db, logger)
+	credentialRepository := repository.CredentialRepository{
+		Repository: commonRepository,
+	}
+	channelRepository := repository.ChannelRepository{
+		Repository: commonRepository,
+	}
+
+	sChannel := transformer.TransformCoreChannelToStorageChannel(channel)
+	credentialRepository.SaveCredential(sChannel, token)
+	channelRepository.StoreChannel(sChannel)
 
 	return nil
 }

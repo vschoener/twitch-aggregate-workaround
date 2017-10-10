@@ -25,3 +25,17 @@ type TwitchRequestSettings struct {
 func (ts TwitchSettings) FormatScopes() string {
 	return strings.Join(ts.Scopes, " ")
 }
+
+const (
+	// ChannelURI returns channel uri ressource
+	ChannelURI = "/channel"
+
+	// ChannelsURI returns channels uri ressource
+	ChannelsURI = "/channels"
+
+	// StreamsURI returns streams uri ressource
+	StreamsURI = "/streams"
+
+	// UsersURI returns streams uri ressource
+	UsersURI = "/users"
+)

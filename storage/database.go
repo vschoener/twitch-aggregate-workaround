@@ -24,8 +24,8 @@ type DatabaseSettings struct {
 	Name     string `yaml:"name"`
 }
 
-// QueryLogger used to log or debug query
-type QueryLogger struct {
+// Query contains query and Parameters to process sql query
+type Query struct {
 	Query      string
 	Parameters map[string]interface{}
 }
@@ -35,9 +35,82 @@ func NewDatabase() *Database {
 	return &Database{}
 }
 
+// Prepare does additional process and calls sql.Prepare()
+func (s *Database) Prepare(q Query) *sql.Stmt {
+	s.Logger.Log(fmt.Sprintf("Prepare %#v", q))
+	stmt, err := s.DB.Prepare(q.Query)
+	if err != nil {
+		s.Logger.LogInterface(err)
+		return nil
+	}
+
+	return stmt
+}
+
+// Run has to prepare and exec the query
+func (s *Database) Run(q Query, args ...interface{}) bool {
+	stmt := s.Prepare(q)
+	if stmt == nil {
+		return false
+	}
+	defer stmt.Close()
+
+	_, err := s.DB.Exec(q.Query, args...)
+	if err != nil {
+		s.Logger.LogInterface(err)
+		return false
+	}
+
+	return true
+}
+
+// Query has to execute the query and return Rows
+func (s *Database) Query(query Query, args ...interface{}) *sql.Rows {
+	rows, err := s.DB.Query(query.Query, args...)
+
+	s.Logger.Log(fmt.Sprintf("Query %#v", query))
+	if err != nil {
+		s.Logger.LogInterface(err)
+		return nil
+	}
+
+	return rows
+}
+
+// QueryRow has to execute the query and return Row
+func (s *Database) QueryRow(query Query, args ...interface{}) *sql.Row {
+	s.Logger.Log(fmt.Sprintf("QueryRow on %#v", query))
+	row := s.DB.QueryRow(query.Query, args...)
+
+	return row
+}
+
+// ScanRows has to store result insides interfaces args and some more process
+func (s *Database) ScanRows(rows *sql.Rows, dest ...interface{}) bool {
+	err := rows.Scan(dest...)
+	if err != nil {
+		s.Logger.LogInterface(err)
+		return false
+	}
+	s.Logger.LogInterface(rows)
+
+	return true
+}
+
+// ScanRow has to store result insides interfaces args and some more process
+func (s *Database) ScanRow(row *sql.Row, dest ...interface{}) bool {
+	err := row.Scan(dest...)
+	if err != nil {
+		s.Logger.LogInterface(err)
+		return false
+	}
+	s.Logger.LogInterface(row)
+
+	return true
+}
+
 // Connect to the server
 func (s *Database) Connect(dbSettings *DatabaseSettings) {
-
 	db, err := sql.Open(
 		"mysql",
 		fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",

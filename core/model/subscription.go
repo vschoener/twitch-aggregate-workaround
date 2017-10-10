@@ -1,9 +1,9 @@
-package core
+package model
 
 import "time"
 
-// SubscriptionSummary is a structure containing subscription information
-type SubscriptionSummary struct {
+// Subscription the model from Twitch API
+type Subscription struct {
 	ID          int64
 	CreatedAt   time.Time
 	SubPlan     string
@@ -11,7 +11,7 @@ type SubscriptionSummary struct {
 	Users       []UserSubscription
 }
 
-// UserSubscription contains user subscription information
+// UserSubscription is the model from Twitch API
 type UserSubscription struct {
 	ID          int64
 	Bio         string

@@ -6,12 +6,37 @@ import (
 	"github.com/wonderstream/twitch/credential"
 	"github.com/wonderstream/twitch/logger"
 	"github.com/wonderstream/twitch/storage"
+	"github.com/wonderstream/twitch/storage/repository"
 )
 
-func startAggregation(context aggregation.Context) {
+func startAggregation(c aggregation.Context) {
+
+	c.Loggger.Log("Starting aggregation")
+
+	commonRepository := repository.NewRepository(c.DB, c.Loggger)
+	channelRepository := repository.ChannelRepository{
+		Repository: commonRepository,
+	}
+	videoRepository := repository.ChannelVideoRepository{
+		Repository: commonRepository,
+	}
+
+	userRepository := repository.UserRepository{
+		Repository: commonRepository,
+	}
+
+	// for _, credential := range c.Credentials {
+	// 	twitchRequest := core.NewUserAccessTokenRequest(c.OAuth2, credential.TokenResponse)
+	// 	twitchRequest.Logger = c.Loggger
+	// 	channel := service.ChannelService{Request: twitchRequest}
+	// 	channelSummary := channel.GetInfo()
+	// 	c.StoreChannelSummary(channelSummary)
+	// }
 
 	channel := aggregation.Channel{
-		Context: context,
+		Context:                c,
+		ChannelRepository:      channelRepository,
+		ChannelVideoRepository: videoRepository,
 	}
 
 	channel.Process()
@@ -21,11 +46,12 @@ func startAggregation(context aggregation.Context) {
 	// }
 	// streams.Process()
 
-	// users := aggregation.Users{
-	// 	Context: context,
-	// }
-	//
-	// users.Process()
+	users := aggregation.User{
+		Context:        c,
+		UserRepository: userRepository,
+	}
+
+	users.Process()
 }
 
 func main() {
@@ -47,8 +73,12 @@ func main() {
 	oauth2 := core.NewOAuth2(credential.GetTwitch())
 
 	// TODO: It's not required now but we should itenarate by range later
-	credentials := database.GetCredentials()
+	credentialRepository := repository.CredentialRepository{
+		Repository: repository.NewRepository(database, l),
+	}
+	credentials := credentialRepository.GetCredentials()
 
+	// Prepare Non Auth request to avoid building the same again and again
 	twitchRequest := core.NewRequest(oauth2)
 	twitchRequest.Logger = l
 
@@ -60,6 +90,5 @@ func main() {
 		Request:     twitchRequest,
 	}
 
-	l.Log("Starting aggregation")
 	startAggregation(context)
 }

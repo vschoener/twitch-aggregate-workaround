@@ -4,12 +4,15 @@ import (
 	"net/http"
 
 	"github.com/wonderstream/twitch/core"
-	"github.com/wonderstream/twitch/core/api/streams"
+	"github.com/wonderstream/twitch/core/model"
+	"github.com/wonderstream/twitch/core/service"
+	"github.com/wonderstream/twitch/storage/repository"
 )
 
 // Streams aggregation contains requirement to handle the process
 type Streams struct {
 	Context
+	repository.ChannelRepository
 }
 
 func (s Streams) processStreams() {
@@ -18,9 +21,9 @@ func (s Streams) processStreams() {
 		twitchRequest := core.NewUserAccessTokenRequest(s.OAuth2, credential.TokenResponse)
 		twitchRequest.Logger = s.Loggger
 		twitchRequest.Method = http.MethodGet
-		lastChannelEntry := s.Context.DB.GetLastUpdatedChannelSummary(credential.ChannelName)
-		streamsManager := streams.Streams{Request: twitchRequest}
-		streamsManager.GetStream(lastChannelEntry.IDTwitch, streams.Live)
+		lastChannelEntry := s.GetLastUpdatedChannelSummary(credential.ChannelName)
+		streamService := service.StreamService{Request: twitchRequest}
+		streamService.GetStream(lastChannelEntry.IDTwitch, model.Live)
 	}
 }
 

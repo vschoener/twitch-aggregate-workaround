@@ -2,6 +2,7 @@ package core
 
 import (
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net/http"
 
@@ -75,6 +76,11 @@ func (r Request) SendRequest(URI string, definition interface{}) error {
 	if err != nil {
 		return err
 	}
+
+	if resp.StatusCode != 200 {
+		return errors.New(resp.Status)
+	}
+
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)

@@ -1,28 +1,20 @@
-package storage
+package repository
 
 import (
-	"fmt"
-	"time"
-
-	"github.com/wonderstream/twitch/core/api/users"
+	"github.com/wonderstream/twitch/storage"
+	"github.com/wonderstream/twitch/storage/model"
 )
 
-// Users is the storage manager
-type Users struct {
-	ID      int64
-	DateAdd time.Time
-	users.User
+// UserRepository handles user database query
+type UserRepository struct {
+	*Repository
 }
 
-const (
-	usersTable = "users"
-)
-
 // StoreUsers inserts User info in the storage and keep history
-func (d *Database) StoreUsers(user users.User) bool {
-	queryLogger := QueryLogger{
+func (r UserRepository) StoreUsers(user model.User) bool {
+	query := storage.Query{
 		Query: `
-            INSERT INTO ` + usersTable + `
+            INSERT INTO ` + model.UserTable + `
             (
                 user_id,
                 bio,
@@ -46,17 +38,8 @@ func (d *Database) StoreUsers(user users.User) bool {
 		},
 	}
 
-	d.Logger.Log(fmt.Sprintf("StoreUsers on %#v", queryLogger))
-	stmt, err := d.DB.Prepare(queryLogger.Query)
-
-	if err != nil {
-		d.Logger.LogInterface(err)
-		return false
-	}
-
-	defer stmt.Close()
-	_, err = stmt.Exec(
-		user.ID,
+	state := r.Database.Run(query,
+		user.UserID,
 		user.Bio,
 		user.DisplayName,
 		user.Logo,
@@ -71,10 +54,5 @@ func (d *Database) StoreUsers(user users.User) bool {
 		user.Type,
 	)
 
-	if err != nil {
-		d.Logger.LogInterface(err)
-		return false
-	}
-
-	return true
+	return state
 }
