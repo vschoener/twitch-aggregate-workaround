@@ -29,9 +29,7 @@ func main() {
 
 	twitchRequest := core.NewRequest(oauth2)
 	twitchRequest.Logger = l
-	v := service.VideoService{
-		Request: twitchRequest,
-	}
+	v := service.NewVideoService()
 
-	log.Printf("%#v", v.GetVideosFromID(42544623, 10))
+	log.Printf("%#v", v.GetVideosFromID(42544623, twitchRequest, 10))
 }

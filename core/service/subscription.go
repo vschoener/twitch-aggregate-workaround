@@ -9,14 +9,18 @@ import (
 
 // SubscriptionService handles processes for the subscription
 type SubscriptionService struct {
-	*core.Request
+}
+
+// NewSubscriptionService constructor
+func NewSubscriptionService() SubscriptionService {
+	return SubscriptionService{}
 }
 
 // GetSubscription return the subscription summary of the channel ID
-func (s SubscriptionService) GetSubscription(channelID int64) model.Subscription {
+func (s SubscriptionService) GetSubscription(channelID int64, r *core.Request) model.Subscription {
 	subscription := model.Subscription{}
 	url := fmt.Sprintf("%s/%d/subscriptions", core.ChannelsURI, channelID)
-	s.SendRequest(url, &subscription)
+	r.SendRequest(url, &subscription)
 
 	return subscription
 }

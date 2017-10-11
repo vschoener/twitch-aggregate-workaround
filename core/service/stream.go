@@ -9,16 +9,20 @@ import (
 
 // StreamService handles processes for the stream
 type StreamService struct {
-	*core.Request
+}
+
+// NewStreamService constructor
+func NewStreamService() StreamService {
+	return StreamService{}
 }
 
 // GetStream Gets stream information (the stream object) for a specified user.
 // Authentication none
-func (s StreamService) GetStream(channelID int64, streamType model.StreamType) model.Stream {
+func (s StreamService) GetStream(channelID int64, streamType model.StreamType, r *core.Request) model.Stream {
 	stream := struct {
 		stream model.Stream
 	}{}
-	s.Request.SendRequest(fmt.Sprintf("%s/%d", core.StreamsURI, channelID), stream)
+	r.SendRequest(fmt.Sprintf("%s/%d", core.StreamsURI, channelID), stream)
 
 	return stream.stream
 }

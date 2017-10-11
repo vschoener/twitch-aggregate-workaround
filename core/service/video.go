@@ -12,6 +12,11 @@ type VideoService struct {
 	*core.Request
 }
 
+// NewVideoService constructor
+func NewVideoService() VideoService {
+	return VideoService{}
+}
+
 // GetVideosFromIDResult contains result from request of GetVideosFromID
 type GetVideosFromIDResult struct {
 	Total  int16 `json:"_total"`
@@ -19,9 +24,9 @@ type GetVideosFromIDResult struct {
 }
 
 // GetVideosFromID returns the videos list of the channel ID
-func (s VideoService) GetVideosFromID(channelID int64, total int) []model.Video {
+func (s VideoService) GetVideosFromID(channelID int64, r *core.Request, total int) []model.Video {
 	result := GetVideosFromIDResult{}
-	s.SendRequest(fmt.Sprintf("%s/%d/videos?limit=%d", core.ChannelsURI, channelID, total), &result)
+	r.SendRequest(fmt.Sprintf("%s/%d/videos?limit=%d", core.ChannelsURI, channelID, total), &result)
 
 	return result.Videos
 }

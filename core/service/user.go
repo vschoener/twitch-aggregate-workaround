@@ -10,7 +10,11 @@ import (
 
 // UserService handles processes for the user channel
 type UserService struct {
-	*core.Request
+}
+
+// NewUserService constructor
+func NewUserService() UserService {
+	return UserService{}
 }
 
 // GetByChanelNamesResult contains the result of the request from
@@ -21,9 +25,9 @@ type GetByChanelNamesResult struct {
 }
 
 // GetByChanelNames return a channels list information
-func (s UserService) GetByChanelNames(channelNames []string) GetByChanelNamesResult {
+func (s UserService) GetByChanelNames(channelNames []string, r *core.Request) GetByChanelNamesResult {
 	result := GetByChanelNamesResult{}
-	s.SendRequest(fmt.Sprintf("%s?login=%s", core.UsersURI, strings.Join(channelNames, ",")), &result)
+	r.SendRequest(fmt.Sprintf("%s?login=%s", core.UsersURI, strings.Join(channelNames, ",")), &result)
 
 	return result
 }

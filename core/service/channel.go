@@ -7,13 +7,17 @@ import (
 
 // ChannelService handles processes for the channel
 type ChannelService struct {
-	*core.Request
+}
+
+// NewChannelService constructor
+func NewChannelService() ChannelService {
+	return ChannelService{}
 }
 
 // GetInfo retrieve information
-func (s ChannelService) GetInfo() model.Channel {
+func (s ChannelService) GetInfo(r *core.Request) model.Channel {
 	channel := model.Channel{}
-	s.SendRequest(core.ChannelURI, &channel)
+	r.SendRequest(core.ChannelURI, &channel)
 
 	return channel
 }
