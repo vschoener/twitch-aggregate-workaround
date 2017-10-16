@@ -1,0 +1,12 @@
+<h1>Add Channel</h1>
+
+{{ if .Error }}
+    <div class="error">{{.Error}}</div>
+{{ else }}
+    <div class="success">{{.Success}}</div>
+{{ end }}
+
+<form action="" method="POST">
+    <input type="text" name="channel" value="{{.ChannelName}}">
+    <input type="submit" value="Submit">
+</form>
