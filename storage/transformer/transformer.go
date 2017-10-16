@@ -1,6 +1,9 @@
 package transformer
 
 import (
+	"strings"
+
+	"github.com/wonderstream/twitch/core"
 	"github.com/wonderstream/twitch/core/model"
 	storageModel "github.com/wonderstream/twitch/storage/model"
 )
@@ -10,22 +13,85 @@ type Transformer struct {
 }
 
 // TransformCoreChannelToStorageChannel transform model from Core to Storage
-func TransformCoreChannelToStorageChannel(cc model.Channel) storageModel.Channel {
+func TransformCoreChannelToStorageChannel(c model.Channel) storageModel.Channel {
 	return storageModel.Channel{
-		Channel: cc,
+		Mature:               c.Mature,
+		Status:               c.Status,
+		BroadcasterLanguage:  c.BroadcasterLanguage,
+		DisplayName:          c.DisplayName,
+		Game:                 c.Game,
+		Language:             c.Language,
+		IDTwitch:             c.IDTwitch,
+		Name:                 c.Name,
+		CreatedAt:            c.CreatedAt,
+		UpdatedAt:            c.UpdatedAt,
+		Partner:              c.Partner,
+		VideoBanner:          c.VideoBanner,
+		ProfileBanner:        c.ProfileBanner,
+		ProfileBannerBGColor: c.ProfileBannerBGColor,
+		URL:                  c.URL,
+		Views:                c.Views,
+		Followers:            c.Followers,
+		BroadcasterType:      c.BroadcasterType,
+		StreamKey:            c.StreamKey,
+		Email:                c.Email,
 	}
 }
 
 // TransformCoreVideoToStorageVideo transform model from Core to Storage
 func TransformCoreVideoToStorageVideo(v model.Video) storageModel.ChannelVideo {
 	return storageModel.ChannelVideo{
-		Video: v,
+		Title:           v.Title,
+		Description:     v.Description,
+		DescriptionHTML: v.DescriptionHTML,
+		BrodcastID:      v.BrodcastID,
+		BrodcastType:    v.BrodcastType,
+		Status:          v.Status,
+		TagList:         v.TagList,
+		Views:           v.Views,
+		URL:             v.URL,
+		Language:        v.Language,
+		CreatedAt:       v.CreatedAt,
+		Viewable:        v.Viewable,
+		ViewableAt:      v.ViewableAt,
+		PublishedAt:     v.PublishedAt,
+		VideoID:         v.VideoID,
+		RecordedAt:      v.RecordedAt,
+		Game:            v.Game,
+		Length:          v.Length,
 	}
 }
 
 // TransformCoreUserToStorageUser transform model from Core to Storage
 func TransformCoreUserToStorageUser(u model.User) storageModel.User {
 	return storageModel.User{
-		User: u,
+		DisplayName: u.DisplayName,
+		UserID:      u.UserID,
+		Name:        u.Name,
+		Type:        u.Type,
+		Bio:         u.Bio,
+		CreatedAt:   u.CreatedAt,
+		UpdatedAt:   u.UpdatedAt,
+		Logo:        u.Logo,
+	}
+}
+
+// TransformCoreTokenResponseToStorageCredential transform TokenResponse to Storage Token
+func TransformCoreTokenResponseToStorageCredential(t core.TokenResponse) storageModel.Credential {
+	return storageModel.Credential{
+		AccessToken:  t.AccessToken,
+		RefreshToken: t.RefreshToken,
+		ExpiresIn:    t.ExpiresIn,
+		Scopes:       strings.Join(t.Scopes, " "),
+	}
+}
+
+// TransformStorageCredentialToCoreTokenResponse transform TokenResponse to Storage Token
+func TransformStorageCredentialToCoreTokenResponse(t storageModel.Credential) core.TokenResponse {
+	return core.TokenResponse{
+		AccessToken:  t.AccessToken,
+		RefreshToken: t.RefreshToken,
+		ExpiresIn:    t.ExpiresIn,
+		Scopes:       strings.Split(t.Scopes, " "),
 	}
 }

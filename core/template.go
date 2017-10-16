@@ -5,6 +5,9 @@ import "html/template"
 const (
 	// AuthFormTemplate name
 	AuthFormTemplate string = "authForm.html"
+
+	// AddChannelTemplate name
+	AddChannelTemplate string = "addChannel.html"
 )
 
 // Use GetTemplates to get an instance

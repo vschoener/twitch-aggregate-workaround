@@ -6,10 +6,11 @@ import (
 	"github.com/wonderstream/twitch/credential"
 	"github.com/wonderstream/twitch/logger"
 	"github.com/wonderstream/twitch/storage"
+	"github.com/wonderstream/twitch/storage/repository"
+	"github.com/wonderstream/twitch/storage/transformer"
 )
 
 func main() {
-
 	credential := credential.NewCredential(credential.YAMLLoader{}, "./parameters.yml")
 	credential.LoadSetting()
 
@@ -26,6 +27,19 @@ func main() {
 
 	oauth2 := core.NewOAuth2(credential.GetTwitch())
 
-	aggregation := aggregation.NewAggregation(oauth2, database, l)
+	r := repository.CredentialRepository{
+		Repository: repository.NewRepository(database, l),
+	}
+	appToken, succeed := r.GetAppToken(oauth2.AppName)
+
+	if !succeed {
+		l.LogErrInterface("Credential not found or not loaded properly")
+		return
+	}
+
+	token := transformer.TransformStorageCredentialToCoreTokenResponse(appToken)
+
+	aggregation := aggregation.NewAggregation(oauth2, database, l, token)
+
 	aggregation.Start()
 }

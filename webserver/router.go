@@ -1,6 +1,7 @@
 package webserver
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -33,9 +34,9 @@ type Route struct {
 // Logger is a request logger
 func (r Router) Logger(httpHandler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		r.logger.LogInterface(req)
+		r.logger.Log(fmt.Sprintf("[Router][Request] %#v", req))
 		httpHandler.ServeHTTP(w, req)
-		r.logger.LogInterface(w)
+		r.logger.Log(fmt.Sprintf("[Router][Response] %#v", w))
 	})
 }
 
@@ -56,6 +57,10 @@ func (r *Router) Load() {
 			URI:     "/connectToTwitch",
 			Handler: r.connectToTwitch,
 		},
+		"addChannel": Route{
+			URI:     "/addChannel",
+			Handler: r.addChannel,
+		},
 	}
 
 	r.Mux = http.NewServeMux()
@@ -72,10 +77,26 @@ func (r Router) home(w http.ResponseWriter, req *http.Request) {
 	w.Write([]byte("Hello World"))
 }
 
+func (r Router) addChannel(w http.ResponseWriter, req *http.Request) {
+	s := struct {
+		Error       string
+		Success     string
+		ChannelName string
+	}{}
+
+	if req.Method == http.MethodPost {
+		req.ParseForm()
+		s.ChannelName = req.Form.Get("channel")
+	}
+
+	template := core.GetTemplate(core.AddChannelTemplate)
+	template.Execute(w, s)
+}
+
 // responseOAuthTwitch
 func (r Router) responseOAuthTwitch(w http.ResponseWriter, req *http.Request) {
 	authAggregation := aggregation.NewAuthAggregation(r.oauth2, r.db)
-	err := authAggregation.HandleHTTPRequest(w, req, r.logger)
+	err := authAggregation.HandleUserAccessTokenHTTPRequest(w, req, r.logger)
 
 	if err != nil {
 		http.Redirect(w, req, r.oauth2.ErrorRedirectURL+"?error="+err.Error(), http.StatusSeeOther)

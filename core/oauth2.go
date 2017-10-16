@@ -1,25 +1,39 @@
 package core
 
 import (
-	"bytes"
-	"encoding/json"
-	"errors"
-	"io/ioutil"
-	"net/http"
+	"strings"
+	"time"
+
+	"github.com/wonderstream/twitch/logger"
 )
 
 // OAuth2 manager
 type OAuth2 struct {
 	Scopes map[string]string
 	*TwitchSettings
+	Logger logger.Logger
 }
 
 // TokenResponse use to store response body when getting a new token
 type TokenResponse struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-	Scope        string `json:"scope"`
-	ExpiresIn    int64  `json:"expires_in"`
+	AccessToken  string   `json:"access_token"`
+	RefreshToken string   `json:"refresh_token"`
+	ExpiresIn    int64    `json:"expires_in"`
+	Scopes       []string `json:"scope"`
+}
+
+// IsTokenValid checks if the token is still valide
+func (s TokenResponse) IsTokenValid(date time.Time) bool {
+	if s.ExpiresIn == 0 {
+		return true
+	}
+
+	return date.Add(time.Second * time.Duration(s.ExpiresIn)).Before(time.Now())
+}
+
+// FormatScopes return the proper scope format
+func (s TokenResponse) FormatScopes() string {
+	return strings.Join(s.Scopes, " ")
 }
 
 const (
@@ -65,44 +79,59 @@ func NewOAuth2(ts *TwitchSettings) *OAuth2 {
 	}
 }
 
-// RequestToken has to request a token using Query "code" paramater available
-// inside the twRequest (request sent by twitch when the user is redirected)
-func (oauth2 *OAuth2) RequestToken(twRequest *http.Request) (TokenResponse, error) {
-	authorizationCode := twRequest.URL.Query().Get("code")
+// SetLogger set logger service
+func (oauth2 *OAuth2) SetLogger(logger logger.Logger) {
+	oauth2.Logger = logger
+}
+
+// RequestToken only send an auth request to retrieve an Access token
+func (oauth2 *OAuth2) RequestToken(values map[string]string) (TokenResponse, error) {
 	tokenResponse := TokenResponse{}
+	values["client_id"] = oauth2.ClientID
+	values["client_secret"] = oauth2.ClientSecret
 
-	if len(authorizationCode) == 0 {
-		err := errors.New("The query 'code' parameter is missing, please try again or contact us at contact@wonderstream.tv")
-		if twError := twRequest.URL.Query().Get("error"); len(twError) > 0 {
-			err = errors.New(twRequest.URL.Query().Get("error_description"))
-		}
-		return tokenResponse, err
-	}
+	request := NewRequest(oauth2)
+	request.Logger = oauth2.Logger
+	request.SetPost(values, "application/json")
+	err := request.SendRequest("/oauth2/token", &tokenResponse)
 
+	return tokenResponse, err
+}
+
+// RequestUserAcccessToken has to request a token using Query "code" paramater available
+// inside the twRequest (request sent by twitch when the user is redirected)
+func (oauth2 *OAuth2) RequestUserAcccessToken(authorizationCode string) (TokenResponse, error) {
 	values := map[string]string{
-		"client_id":     oauth2.ClientID,
-		"client_secret": oauth2.ClientSecret,
-		"code":          authorizationCode,
-		"grant_type":    "authorization_code",
-		"redirect_uri":  oauth2.RedirectURL,
+		"code":         authorizationCode,
+		"grant_type":   "authorization_code",
+		"redirect_uri": oauth2.RedirectURL,
 	}
+	tokenResponse, err := oauth2.RequestToken(values)
 
-	jsonRaw, _ := json.Marshal(values)
-	resp, err := http.Post("https://api.twitch.tv/api/oauth2/token", "application/json", bytes.NewBuffer(jsonRaw))
+	return tokenResponse, err
+}
+
+// RequestAppAccessToken ask a server to server token
+func (oauth2 *OAuth2) RequestAppAccessToken() (TokenResponse, error) {
+	values := map[string]string{
+		"grant_type": "client_credentials",
+		"scope":      oauth2.FormatScopes(),
+	}
+	tokenResponse, err := oauth2.RequestToken(values)
+
+	return tokenResponse, err
+}
+
+// RefreshToken request a new token
+func (oauth2 *OAuth2) RefreshToken(token TokenResponse) (TokenResponse, error) {
+	values := map[string]string{
+		"grant_type":    "refresh_token",
+		"refresh_token": token.RefreshToken,
+	}
+	token, err := oauth2.RequestToken(values)
 	if err != nil {
-		return tokenResponse, err
-	}
-	defer resp.Body.Close()
-
-	body, _ := ioutil.ReadAll(resp.Body)
-	err = json.Unmarshal(body, &tokenResponse)
-	if err != nil {
-		return tokenResponse, err
+		return token, err
 	}
 
-	if len(tokenResponse.AccessToken) <= 0 {
-		return tokenResponse, errors.New("Token empty, please ask for a new authorization code")
-	}
-
-	return tokenResponse, nil
+	return token, nil
 }

@@ -15,6 +15,8 @@ type Logger interface {
 
 	// LogInterface logg any complex struct
 	LogInterface(interface{}) error
+	// LogErrInterface shortcut to tag Error
+	LogErrInterface(interface{}) error
 
 	Connect(Settings)
 }
@@ -82,6 +84,14 @@ func (le *LogEntry) Log(message string) error {
 func (le *LogEntry) LogInterface(i interface{}) error {
 
 	le.Log(fmt.Sprintf("%#v", i))
+
+	return nil
+}
+
+// LogErrInterface complex struct
+func (le *LogEntry) LogErrInterface(i interface{}) error {
+
+	le.Log(fmt.Sprintf("[Error] %#v", i))
 
 	return nil
 }

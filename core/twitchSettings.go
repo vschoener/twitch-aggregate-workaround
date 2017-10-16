@@ -9,6 +9,7 @@ type TwitchSettings struct {
 	RedirectURL           string `yaml:"redirectURL"`
 	TwitchRequestSettings `yaml:"request"`
 	Scopes                []string `ymal:"scopes"`
+	AppName               string   `yaml:"app_name"`
 
 	// Extra settings for server application
 	ErrorRedirectURL   string `yaml:"errorRedirectURL"`

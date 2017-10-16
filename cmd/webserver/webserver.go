@@ -26,6 +26,7 @@ func main() {
 	defer (l.(*logger.LogEntry)).Client.Close()
 
 	oauth2 := core.NewOAuth2(credential.GetTwitch())
+	oauth2.SetLogger(l)
 
 	webServer := webserver.NewServer(credential.ServerSetting)
 	webServer.Logger = l

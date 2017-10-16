@@ -40,8 +40,8 @@ func (c *Channel) Initialize(a Aggregation) {
 
 // Process channel aggregator
 func (c Channel) Process(cr model.Credential) {
-
-	twitchRequest := core.NewUserAccessTokenRequest(c.a.OAuth2, cr.TokenResponse)
+	token := transformer.TransformStorageCredentialToCoreTokenResponse(cr)
+	twitchRequest := core.NewUserAccessTokenRequest(c.a.OAuth2, token)
 	twitchRequest.Logger = c.a.Logger
 
 	c.a.Logger.Log(fmt.Sprintf("Start Channel aggregation on %s #%d", cr.ChannelName, cr.ChannelID))

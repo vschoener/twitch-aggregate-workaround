@@ -22,14 +22,16 @@ type Aggregation struct {
 	Database        *storage.Database
 	Logger          logger.Logger
 	twPublicRequest *core.Request
+	AppToken        core.TokenResponse
 }
 
 // NewAggregation constructor
-func NewAggregation(o *core.OAuth2, db *storage.Database, l logger.Logger) Aggregation {
+func NewAggregation(o *core.OAuth2, db *storage.Database, l logger.Logger, appToken core.TokenResponse) Aggregation {
 	return Aggregation{
 		OAuth2:   o,
 		Database: db,
 		Logger:   l,
+		AppToken: appToken,
 	}
 }
 
@@ -47,11 +49,10 @@ func (a *Aggregation) prepare() {
 // Start aggregation process
 func (a Aggregation) Start() {
 	a.prepare()
-
 	credentialRepository := repository.CredentialRepository{
 		Repository: repository.NewRepository(a.Database, a.Logger),
 	}
-	credentials := credentialRepository.GetCredentials()
+	credentials := credentialRepository.GetUserCredentials()
 
 	for _, aggregator := range a.Aggregators {
 		aggregator.Initialize(a)

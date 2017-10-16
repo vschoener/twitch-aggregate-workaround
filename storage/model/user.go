@@ -2,8 +2,6 @@ package model
 
 import (
 	"time"
-
-	"github.com/wonderstream/twitch/core/model"
 )
 
 const (
@@ -13,7 +11,14 @@ const (
 
 // User is the storage manager
 type User struct {
-	ID      int64
-	DateAdd time.Time
-	model.User
+	ID          int64
+	DateAdd     time.Time
+	DisplayName string
+	UserID      int64
+	Name        string
+	Type        string
+	Bio         string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	Logo        string
 }
