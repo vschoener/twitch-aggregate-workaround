@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+    storage:
+        container_name: ws_twitch_db
+        image: mariadb:10.3
+        restart: always
+        environment:
+          - MYSQL_ROOT_PASSWORD=root
+          - MYSQL_USER=ws
+          - MYSQL_PASSWORD=ws42
+          - MYSQL_DATABASE=ws_aggregate_storage
+        ports:
+          - "3306:3306"
+        volumes:
+          - ~/.docker/var/lib/mysql:/var/lib/mysql:rw
+          - ./storage/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
