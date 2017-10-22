@@ -19,16 +19,20 @@ func main() {
 	l.Connect(credential.LoggerSettings)
 
 	database := storage.NewDatabase()
-	database.Logger = l
+	database.Logger = l.Share()
+	database.Logger.SetPrefix("STORAGE")
 	database.Connect(credential.GetDB())
 
 	defer database.DB.Close()
-	defer (l.(*logger.LogEntry)).Client.Close()
+	defer l.Close()
 
 	oauth2 := core.NewOAuth2(credential.GetTwitch())
-	oauth2.SetLogger(l)
+	oauth2Logger := l.Share()
+	oauth2Logger.SetPrefix("LIBRARY")
+	oauth2.SetLogger(oauth2Logger)
 
 	webServer := webserver.NewServer(credential.ServerSetting)
-	webServer.Logger = l
+	webServer.Logger = l.Share()
+	webServer.Logger.SetPrefix("WEBSERVER")
 	webServer.Start(database, oauth2)
 }

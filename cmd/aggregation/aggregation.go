@@ -16,16 +16,20 @@ func main() {
 
 	l := logger.NewLogger()
 	l.Connect(credential.LoggerSettings)
-	defer l.(*logger.LogEntry).Client.Close()
+	defer l.Close()
 
 	l.Log("Preparing aggregation")
 
 	database := storage.NewDatabase()
-	database.Logger = l
+	database.Logger = l.Share()
+	database.Logger.SetPrefix("STORAGE")
 	database.Connect(credential.GetDB())
 	defer database.DB.Close()
 
 	oauth2 := core.NewOAuth2(credential.GetTwitch())
+	oauth2Logger := l.Share()
+	oauth2Logger.SetPrefix("LIBRARY")
+	oauth2.SetLogger(oauth2Logger)
 
 	r := repository.CredentialRepository{
 		Repository: repository.NewRepository(database, l),
@@ -39,7 +43,14 @@ func main() {
 
 	token := transformer.TransformStorageCredentialToCoreTokenResponse(appToken)
 
-	aggregation := aggregation.NewAggregation(oauth2, database, l, token)
+	aggregationLogger := l.Share()
+	aggregationLogger.SetPrefix("AGGREGATION")
+	aggregation := aggregation.NewAggregation(
+		oauth2,
+		database,
+		aggregationLogger,
+		token,
+	)
 
 	aggregation.Start()
 }

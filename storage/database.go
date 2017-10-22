@@ -37,7 +37,7 @@ func NewDatabase() *Database {
 
 // Prepare does additional process and calls sql.Prepare()
 func (s *Database) Prepare(q Query) *sql.Stmt {
-	s.Logger.Log(fmt.Sprintf("[Storage][Prepare] %#v", q))
+	s.Logger.Log(fmt.Sprintf("[Prepare] %#v", q))
 	stmt, err := s.DB.Prepare(q.Query)
 	if err != nil {
 		s.Logger.LogInterface(err)
@@ -68,7 +68,7 @@ func (s *Database) Run(q Query, args ...interface{}) bool {
 func (s *Database) Query(query Query, args ...interface{}) *sql.Rows {
 	rows, err := s.DB.Query(query.Query, args...)
 
-	s.Logger.Log(fmt.Sprintf("[Storage][Query] %#v", query))
+	s.Logger.Log(fmt.Sprintf("[Query] %#v", query))
 	if err != nil {
 		s.Logger.LogInterface(err)
 		return nil
@@ -79,7 +79,7 @@ func (s *Database) Query(query Query, args ...interface{}) *sql.Rows {
 
 // QueryRow has to execute the query and return Row
 func (s *Database) QueryRow(query Query, args ...interface{}) *sql.Row {
-	s.Logger.Log(fmt.Sprintf("[Storage][QueryRow] %#v", query))
+	s.Logger.Log(fmt.Sprintf("[QueryRow] %#v", query))
 	row := s.DB.QueryRow(query.Query, args...)
 
 	return row
@@ -91,11 +91,11 @@ func (s *Database) ScanRows(rows *sql.Rows, dest ...interface{}) bool {
 	s.Logger.LogInterface("Scan")
 	err := rows.Scan(dest...)
 	if err != nil {
-		s.Logger.LogErrInterface(fmt.Sprintf("[Storage][ScanRows] %#v", err))
+		s.Logger.LogErrInterface(fmt.Sprintf("[ScanRows] %#v", err))
 		return false
 	}
 
-	s.Logger.LogInterface(fmt.Sprintf("[Storage][Succeed] %+v", rows))
+	s.Logger.LogInterface(fmt.Sprintf("[Succeed] %+v", rows))
 
 	return true
 }
@@ -104,10 +104,10 @@ func (s *Database) ScanRows(rows *sql.Rows, dest ...interface{}) bool {
 func (s *Database) ScanRow(row *sql.Row, dest ...interface{}) bool {
 	err := row.Scan(dest...)
 	if err != nil {
-		s.Logger.LogErrInterface(fmt.Sprintf("[Storage][ScanRow] %#v", err))
+		s.Logger.LogErrInterface(fmt.Sprintf("[ScanRow] %#v", err))
 		return false
 	}
-	s.Logger.LogInterface(fmt.Sprintf("[Storage][Succeed] %#v", dest))
+	s.Logger.LogInterface(fmt.Sprintf("[Succeed] %#v", dest))
 
 	return true
 }

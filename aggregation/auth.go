@@ -49,7 +49,8 @@ func (a *Auth) HandleUserAccessTokenHTTPRequest(w http.ResponseWriter, twRequest
 	}
 
 	twitchRequest := core.NewUserAccessTokenRequest(a.oauth2, token)
-	twitchRequest.Logger = logger
+	twitchRequest.Logger = logger.Share()
+	twitchRequest.Logger.SetPrefix("LIBRARY")
 
 	channelService := service.ChannelService{}
 	commonRepository := repository.NewRepository(a.db, logger)

@@ -16,13 +16,11 @@ type Stream struct {
 // Initialize channel aggregator
 func (s *Stream) Initialize(a Aggregation) {
 	s.a = a
-
 	s.streamService = service.NewStreamService()
 }
 
 func (s Stream) processStreams(cr model.Credential) {
 	s.a.Logger.Log("Get Stream")
-
 	s.streamService.GetStream(cr.ChannelID, coreModel.Live, s.a.twPublicRequest)
 }
 

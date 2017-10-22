@@ -38,7 +38,8 @@ func NewAggregation(o *core.OAuth2, db *storage.Database, l logger.Logger, appTo
 func (a *Aggregation) prepare() {
 	// Prepare Non Auth request to avoid building the same again and again
 	twitchRequest := core.NewRequest(a.OAuth2)
-	twitchRequest.Logger = a.Logger
+	twitchRequest.Logger = a.Logger.Share()
+	twitchRequest.Logger.SetPrefix("LIBRARY")
 	a.twPublicRequest = twitchRequest
 
 	a.Aggregators = append(a.Aggregators, &Channel{})
