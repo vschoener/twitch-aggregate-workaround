@@ -8,6 +8,9 @@ all: re
 gobuild:
 	go install ./...
 
+gobuild_linux:
+	GOOS=linux GOARCH=amd64 go build ./... -o
+
 goclean:
 	go clean
 

@@ -53,22 +53,24 @@ func (a *Auth) HandleUserAccessTokenHTTPRequest(w http.ResponseWriter, twRequest
 	twitchRequest.Logger.SetPrefix("LIBRARY")
 
 	channelService := service.ChannelService{}
-	commonRepository := repository.NewRepository(a.db, logger)
-	credentialRepository := repository.CredentialRepository{
-		Repository: commonRepository,
-	}
-	channelRepository := repository.ChannelRepository{
-		Repository: commonRepository,
-	}
+	userService := service.UserService{}
+	credentialRepository := repository.NewCredentialRepository(a.db, logger)
+	channelRepository := repository.NewChannelRepository(a.db, logger)
+	userRepository := repository.NewUserRepository(a.db, logger)
 
 	channel := channelService.GetInfo(twitchRequest)
+	user := userService.GetByName(channel.Name, twitchRequest)
+
 	sChannel := transformer.TransformCoreChannelToStorageChannel(channel)
 	credential := transformer.TransformCoreTokenResponseToStorageCredential(token)
+	sUser := transformer.TransformCoreUserToStorageUser(user)
+
 	credential.ChannelID = sChannel.IDTwitch
 	credential.ChannelName = sChannel.Name
 	credential.Email = sChannel.Email
 	credentialRepository.SaveUserCredential(credential)
 	channelRepository.StoreChannel(sChannel)
+	userRepository.StoreUser(sUser)
 
 	return nil
 }

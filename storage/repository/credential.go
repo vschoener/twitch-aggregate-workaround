@@ -3,6 +3,7 @@ package repository
 import (
 	"strconv"
 
+	"github.com/wonderstream/twitch/logger"
 	"github.com/wonderstream/twitch/storage"
 	"github.com/wonderstream/twitch/storage/model"
 )
@@ -10,6 +11,16 @@ import (
 // CredentialRepository handles credential database query
 type CredentialRepository struct {
 	*Repository
+}
+
+// NewCredentialRepository return a credential repository
+func NewCredentialRepository(db *storage.Database, l logger.Logger) CredentialRepository {
+	commonRepository := NewRepository(db, l)
+	r := CredentialRepository{
+		Repository: commonRepository,
+	}
+
+	return r
 }
 
 // getUID return a uid from the credential information

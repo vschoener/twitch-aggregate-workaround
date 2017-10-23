@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/wonderstream/twitch/logger"
 	"github.com/wonderstream/twitch/storage"
 	"github.com/wonderstream/twitch/storage/model"
 )
@@ -8,6 +9,16 @@ import (
 // ChannelRepository handles channel database query
 type ChannelRepository struct {
 	*Repository
+}
+
+// NewChannelRepository return a credential repository
+func NewChannelRepository(db *storage.Database, l logger.Logger) ChannelRepository {
+	commonRepository := NewRepository(db, l)
+	r := ChannelRepository{
+		Repository: commonRepository,
+	}
+
+	return r
 }
 
 // StoreChannel will add new entry everytime to have an history
