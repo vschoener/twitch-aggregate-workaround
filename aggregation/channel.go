@@ -41,7 +41,7 @@ func (c *Channel) Initialize(a Aggregation) {
 // Process channel aggregator
 func (c Channel) Process(cr model.Credential) {
 	token := transformer.TransformStorageCredentialToCoreTokenResponse(cr)
-	twitchRequest := core.NewUserAccessTokenRequest(c.a.OAuth2, token)
+	twitchRequest := core.NewAccessTokenRequest(c.a.OAuth2, token)
 	twitchRequest.Logger = c.a.Logger.Share()
 	twitchRequest.Logger.SetPrefix("LIBRARY")
 

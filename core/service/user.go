@@ -31,3 +31,15 @@ func (s UserService) GetByChanelNames(channelNames []string, r *core.Request) Ge
 
 	return result
 }
+
+// GetByName retrieve user information from channel or user name
+func (s UserService) GetByName(u string, r *core.Request) model.User {
+	result := s.GetByChanelNames([]string{u}, r)
+
+	user := model.User{}
+	if result.Total == 1 {
+		user = result.Users[0]
+	}
+
+	return user
+}

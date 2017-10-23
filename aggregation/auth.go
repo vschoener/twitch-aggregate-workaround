@@ -48,7 +48,7 @@ func (a *Auth) HandleUserAccessTokenHTTPRequest(w http.ResponseWriter, twRequest
 		return errors.New("Token empty, please ask for a new authorization code")
 	}
 
-	twitchRequest := core.NewUserAccessTokenRequest(a.oauth2, token)
+	twitchRequest := core.NewAccessTokenRequest(a.oauth2, token)
 	twitchRequest.Logger = logger.Share()
 	twitchRequest.Logger.SetPrefix("LIBRARY")
 

@@ -35,9 +35,9 @@ func NewRequest(oauth2 *OAuth2) *Request {
 	return request
 }
 
-// NewUserAccessTokenRequest constructor to build Request containing User Token
+// NewAccessTokenRequest constructor to build Request containing User Token
 // information
-func NewUserAccessTokenRequest(oauth2 *OAuth2, t TokenResponse) *Request {
+func NewAccessTokenRequest(oauth2 *OAuth2, t TokenResponse) *Request {
 	request := NewRequest(oauth2)
 	request.Headers["Authorization"] = "OAuth " + t.AccessToken
 

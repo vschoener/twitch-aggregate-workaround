@@ -7,8 +7,11 @@ import (
 
 	"github.com/wonderstream/twitch/aggregation"
 	"github.com/wonderstream/twitch/core"
+	"github.com/wonderstream/twitch/core/service"
 	"github.com/wonderstream/twitch/logger"
 	"github.com/wonderstream/twitch/storage"
+	"github.com/wonderstream/twitch/storage/repository"
+	"github.com/wonderstream/twitch/storage/transformer"
 )
 
 // HTTPHandler adapter
@@ -87,6 +90,22 @@ func (r Router) addChannel(w http.ResponseWriter, req *http.Request) {
 	if req.Method == http.MethodPost {
 		req.ParseForm()
 		s.ChannelName = req.Form.Get("channel")
+		if len(s.ChannelName) > 0 {
+			twitchRequest := core.NewRequest(r.oauth2)
+			twitchRequest.Logger = r.logger.Share()
+			twitchRequest.Logger.SetPrefix("LIBRARY")
+			userRepository := repository.NewUserRepository(r.db, r.logger)
+			userService := service.NewUserService()
+			user := userService.GetByName(s.ChannelName, twitchRequest)
+			state := userRepository.StoreUser(transformer.TransformCoreUserToStorageUser(user))
+
+			if state {
+				s.Success = "User has been added / updated"
+				s.ChannelName = ""
+			} else {
+				s.Error = "User has not beend added"
+			}
+		}
 	}
 
 	template := core.GetTemplate(core.AddChannelTemplate)

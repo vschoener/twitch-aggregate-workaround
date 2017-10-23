@@ -18,12 +18,7 @@ type User struct {
 // Initialize channel aggregator
 func (u *User) Initialize(a Aggregation) {
 	u.a = a
-
-	commonRepository := repository.NewRepository(a.Database, a.Logger)
-	u.userRepository = repository.UserRepository{
-		Repository: commonRepository,
-	}
-
+	u.userRepository = repository.NewUserRepository(a.Database, a.Logger)
 	u.userService = service.NewUserService()
 }
 

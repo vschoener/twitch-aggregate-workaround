@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/wonderstream/twitch/logger"
 	"github.com/wonderstream/twitch/storage"
 	"github.com/wonderstream/twitch/storage/model"
 )
@@ -10,8 +11,18 @@ type UserRepository struct {
 	*Repository
 }
 
-// StoreUsers inserts User info in the storage and keep history
-func (r UserRepository) StoreUsers(user model.User) bool {
+// NewUserRepository returns user repository
+func NewUserRepository(db *storage.Database, l logger.Logger) UserRepository {
+	commonRepository := NewRepository(db, l)
+	r := UserRepository{
+		Repository: commonRepository,
+	}
+
+	return r
+}
+
+// StoreUser inserts User info in the storage and keep history
+func (r UserRepository) StoreUser(user model.User) bool {
 	query := storage.Query{
 		Query: `
             INSERT INTO ` + model.UserTable + `
