@@ -6,12 +6,13 @@ import (
 	"github.com/wonderstream/twitch/storage"
 	"github.com/wonderstream/twitch/storage/model"
 	"github.com/wonderstream/twitch/storage/repository"
+	"github.com/wonderstream/twitch/storage/transformer"
 )
 
 // Aggregator interface
 type Aggregator interface {
 	Initialize(Aggregation)
-	Process(model.Credential)
+	Process(model.User, bool, core.TokenResponse)
 	End()
 }
 
@@ -50,16 +51,20 @@ func (a *Aggregation) prepare() {
 // Start aggregation process
 func (a Aggregation) Start() {
 	a.prepare()
-	credentialRepository := repository.CredentialRepository{
-		Repository: repository.NewRepository(a.Database, a.Logger),
-	}
-	credentials := credentialRepository.GetUserCredentials()
+	credentialRepository := repository.NewCredentialRepository(a.Database, a.Logger)
+	userRepository := repository.NewUserRepository(a.Database, a.Logger)
+	users := userRepository.GetUsers()
 
-	for _, aggregator := range a.Aggregators {
-		aggregator.Initialize(a)
-		for _, credential := range credentials {
-			aggregator.Process(credential)
+	for _, user := range users {
+		credential, found := credentialRepository.GetCredential(user.Name)
+		token := a.AppToken
+		if true == found {
+			token = transformer.TransformStorageCredentialToCoreTokenResponse(credential)
 		}
-		aggregator.End()
+		for _, aggregator := range a.Aggregators {
+			aggregator.Initialize(a)
+			aggregator.Process(user, found, token)
+			aggregator.End()
+		}
 	}
 }

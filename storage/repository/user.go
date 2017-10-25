@@ -21,6 +21,59 @@ func NewUserRepository(db *storage.Database, l logger.Logger) UserRepository {
 	return r
 }
 
+// GetUsers returns a User list
+func (r UserRepository) GetUsers() []model.User {
+	query := storage.Query{
+		Query: `
+			SELECT
+				user_id,
+				bio,
+				display_name,
+				logo,
+				name,
+				type,
+				created_at,
+				updated_at,
+				date_add
+			FROM ` + model.UserTable + `
+			ORDER BY id DESC
+		`,
+	}
+
+	rows := r.Database.Query(query)
+	if rows == nil {
+		return nil
+	}
+
+	defer rows.Close()
+
+	users := []model.User{}
+
+	for rows.Next() {
+		user := model.User{}
+		state := r.Database.ScanRows(rows,
+			&user.UserID,
+			&user.Bio,
+			&user.DisplayName,
+			&user.Logo,
+			&user.Name,
+			&user.Type,
+			&user.CreatedAt,
+			&user.UpdatedAt,
+			&user.DateAdd,
+		)
+		if state {
+			users = append(users, user)
+		}
+	}
+	if err := rows.Err(); err != nil {
+		r.Logger.LogInterface(err)
+		return nil
+	}
+
+	return users
+}
+
 // StoreUser inserts User info in the storage and keep history
 func (r UserRepository) StoreUser(user model.User) bool {
 	query := storage.Query{

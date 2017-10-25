@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/wonderstream/twitch/core"
+	coreModel "github.com/wonderstream/twitch/core/model"
 	"github.com/wonderstream/twitch/core/service"
 	"github.com/wonderstream/twitch/storage/model"
 	"github.com/wonderstream/twitch/storage/repository"
@@ -39,16 +40,14 @@ func (c *Channel) Initialize(a Aggregation) {
 }
 
 // Process channel aggregator
-func (c Channel) Process(cr model.Credential) {
-	token := transformer.TransformStorageCredentialToCoreTokenResponse(cr)
+func (c Channel) Process(u model.User, isAuthenticated bool, token core.TokenResponse) {
 	twitchRequest := core.NewAccessTokenRequest(c.a.OAuth2, token)
 	twitchRequest.Logger = c.a.Logger.Share()
 	twitchRequest.Logger.SetPrefix("LIBRARY")
 
-	c.a.Logger.Log(fmt.Sprintf("Start Channel aggregation on %s #%d", cr.ChannelName, cr.ChannelID))
-	c.updateChannelSummary(twitchRequest)
-	c.updateSubscriptionSummary(cr, twitchRequest)
-	c.GetVideosStream(cr)
+	c.a.Logger.Log(fmt.Sprintf("Start Channel aggregation on %s #%d", u.Name, u.UserID))
+	c.updateSubscriptionSummary(twitchRequest)
+	c.GetVideosStream(twitchRequest, u.UserID)
 }
 
 // End channel aggregator
@@ -63,7 +62,7 @@ func (c Channel) updateChannelSummary(userAccessTokenRequest *core.Request) {
 	c.StoreChannel(transformer.TransformCoreChannelToStorageChannel(channel))
 }
 
-func (c Channel) updateSubscriptionSummary(cr model.Credential, userAccessTokenRequest *core.Request) {
+func (c Channel) updateSubscriptionSummary(r *core.Request) {
 	c.a.Logger.Log("Get Subscription")
 
 	// subscriptionRepository := repository.SubscriptionRepository{
@@ -75,10 +74,10 @@ func (c Channel) updateSubscriptionSummary(cr model.Credential, userAccessTokenR
 }
 
 // GetVideosStream retrieves last stream video information
-func (c Channel) GetVideosStream(cr model.Credential) {
+func (c Channel) GetVideosStream(r *core.Request, userID int64) {
 	c.a.Logger.Log("Get Video Stream")
-	videos := c.videoService.GetVideosFromID(cr.ChannelID, c.a.twPublicRequest, 100)
+	videos := c.videoService.GetVideosFromID(userID, c.a.twPublicRequest, 100)
 	for _, video := range videos {
-		c.RegisterVideoToChannel(cr.ChannelID, transformer.TransformCoreVideoToStorageVideo(video))
+		c.RegisterVideoToChannel(userID, transformer.TransformCoreVideoToStorageVideo(video))
 	}
 }

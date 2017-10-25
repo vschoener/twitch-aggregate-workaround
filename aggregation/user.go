@@ -1,6 +1,7 @@
 package aggregation
 
 import (
+	"github.com/wonderstream/twitch/core"
 	"github.com/wonderstream/twitch/core/service"
 	"github.com/wonderstream/twitch/storage/model"
 	"github.com/wonderstream/twitch/storage/repository"
@@ -22,20 +23,24 @@ func (u *User) Initialize(a Aggregation) {
 	u.userService = service.NewUserService()
 }
 
-// ProcessUsers aggregate users info
-func (u User) processUsers(cr model.Credential) {
-	result := u.userService.GetByChanelNames([]string{cr.ChannelName}, u.a.twPublicRequest)
+// UpdateUser information
+func (u *User) UpdateUser(user string) model.User {
+	result := u.userService.GetByChanelNames([]string{user}, u.a.twPublicRequest)
 
+	model := model.User{}
 	if result.Total > 0 {
 		for _, user := range result.Users {
-			u.userRepository.StoreUsers(transformer.TransformCoreUserToStorageUser(user))
+			model = transformer.TransformCoreUserToStorageUser(user)
+			u.userRepository.StoreUser(model)
 		}
 	}
+
+	return model
 }
 
 // Process all Users aggregation
-func (u User) Process(cr model.Credential) {
-	u.processUsers(cr)
+func (u User) Process(user model.User, isAuthenticated bool, token core.TokenResponse) {
+	u.UpdateUser(user.Name)
 }
 
 // End aggregate user
