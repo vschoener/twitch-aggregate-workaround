@@ -46,6 +46,7 @@ func (c Channel) Process(u model.User, isAuthenticated bool, token core.TokenRes
 	twitchRequest.Logger.SetPrefix("LIBRARY")
 
 	c.a.Logger.Log(fmt.Sprintf("Start Channel aggregation on %s #%d", u.Name, u.UserID))
+	c.updateChannelSummary(u, isAuthenticated, twitchRequest)
 	c.updateSubscriptionSummary(twitchRequest)
 	c.GetVideosStream(twitchRequest, u.UserID)
 }
@@ -55,10 +56,21 @@ func (c Channel) End() {
 
 }
 
-func (c Channel) updateChannelSummary(userAccessTokenRequest *core.Request) {
+func (c Channel) updateChannelSummary(u model.User, isAuthenticated bool, r *core.Request) {
 	c.a.Logger.Log("Get Info")
 
-	channel := c.channelService.GetInfo(userAccessTokenRequest)
+	var err error
+	var channel coreModel.Channel
+
+	if isAuthenticated {
+		channel, err = c.channelService.GetInfo(r)
+	} else {
+		channel, err = c.channelService.GetInfoByID(u.UserID, r)
+	}
+
+	if err != nil {
+		return
+	}
 	c.StoreChannel(transformer.TransformCoreChannelToStorageChannel(channel))
 }
 
