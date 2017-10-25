@@ -58,7 +58,11 @@ func (a *Auth) HandleUserAccessTokenHTTPRequest(w http.ResponseWriter, twRequest
 	channelRepository := repository.NewChannelRepository(a.db, logger)
 	userRepository := repository.NewUserRepository(a.db, logger)
 
-	channel := channelService.GetInfo(twitchRequest)
+	channel, err := channelService.GetInfo(twitchRequest)
+	if err != nil {
+		return err
+	}
+
 	user := userService.GetByName(channel.Name, twitchRequest)
 
 	sChannel := transformer.TransformCoreChannelToStorageChannel(channel)

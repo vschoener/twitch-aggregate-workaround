@@ -15,7 +15,7 @@ func main() {
 
 	l := logger.NewLogger()
 	l.Connect(credential.LoggerSettings)
-	defer l.(*logger.LogEntry).Client.Close()
+	defer l.Close()
 
 	database := storage.NewDatabase()
 	database.Logger = l

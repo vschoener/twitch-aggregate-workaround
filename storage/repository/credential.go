@@ -79,6 +79,7 @@ func (r *CredentialRepository) SaveUserCredential(c model.Credential) bool {
 // SaveAppCredential saves or updates the credential
 func (r *CredentialRepository) SaveAppCredential(c model.Credential) bool {
 	uid := r.getUID(c)
+
 	query := storage.Query{
 		Query: `
 			INSERT INTO ` + model.CredentialTable + `
@@ -106,7 +107,7 @@ func (r *CredentialRepository) SaveAppCredential(c model.Credential) bool {
 		c.Scopes,
 		c.ExpiresIn,
 		c.AccessToken,
-		c.RefreshToken,
+		c.ExpiresIn,
 	)
 
 	return state
@@ -114,7 +115,7 @@ func (r *CredentialRepository) SaveAppCredential(c model.Credential) bool {
 
 // GetCredential will retrieve the oauth2 token information returning a TokenResponse
 // as reference
-func (r CredentialRepository) GetCredential(channelName string) model.Credential {
+func (r CredentialRepository) GetCredential(channelName string) (model.Credential, bool) {
 	query := storage.Query{
 		Query: `
 			SELECT
@@ -137,7 +138,7 @@ func (r CredentialRepository) GetCredential(channelName string) model.Credential
 
 	var credential = model.Credential{}
 	row := r.Database.QueryRow(query, channelName)
-	r.Database.ScanRow(row,
+	found := r.Database.ScanRow(row,
 		&credential.ID,
 		&credential.ChannelName,
 		&credential.ChannelID,
@@ -149,7 +150,7 @@ func (r CredentialRepository) GetCredential(channelName string) model.Credential
 		&credential.Email,
 	)
 
-	return credential
+	return credential, found
 }
 
 // GetAppToken retrieve the credential token for a specific App

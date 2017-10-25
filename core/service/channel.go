@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+
 	"github.com/wonderstream/twitch/core"
 	"github.com/wonderstream/twitch/core/model"
 )
@@ -15,9 +17,17 @@ func NewChannelService() ChannelService {
 }
 
 // GetInfo retrieve information
-func (s ChannelService) GetInfo(r *core.Request) model.Channel {
+func (s ChannelService) GetInfo(r *core.Request) (model.Channel, error) {
 	channel := model.Channel{}
-	r.SendRequest(core.ChannelURI, &channel)
+	err := r.SendRequest(core.ChannelURI, &channel)
 
-	return channel
+	return channel, err
+}
+
+// GetInfoByID return public channel information
+func (s ChannelService) GetInfoByID(id int64, r *core.Request) (model.Channel, error) {
+	channel := model.Channel{}
+	err := r.SendRequest(fmt.Sprintf("%s/%d", core.ChannelsURI, id), &channel)
+
+	return channel, err
 }

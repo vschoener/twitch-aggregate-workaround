@@ -71,34 +71,30 @@ func (r Request) SendRequest(URI string, definition interface{}) error {
 	request, _ := http.NewRequest(r.Method, completeURL, bytes.NewBuffer(jsonRaw))
 	r.computeHeader(request)
 
-	if r.Logger != nil {
-		r.Logger.LogInterface(r)
-		r.Logger.LogInterface(request)
-	}
+	r.Logger.Log(fmt.Sprintf("Request on %s, %#v", completeURL, r))
 
 	resp, err := client.Do(request)
-
 	if err != nil {
+		r.Logger.Log(fmt.Sprintf("Error %s", err))
 		return err
-	}
-
-	if resp.StatusCode != 200 {
-		return errors.New(resp.Status)
 	}
 
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		r.Logger.Log(fmt.Sprintf("Error %s, response HTTP %d with Body %s", err, resp.StatusCode, string(body)))
 		return err
+	} else if resp.StatusCode != http.StatusOK {
+		r.Logger.Log(fmt.Sprintf("Error status code = %d, response HTTP %d with Body %s", resp.StatusCode, resp.StatusCode, string(body)))
+		return errors.New("Status code errror")
 	}
 
-	if r.Logger != nil {
-		r.Logger.Log(fmt.Sprintf("Response HTTP %d with Body %s", resp.StatusCode, string(body)))
-	}
+	r.Logger.Log(fmt.Sprintf("Response HTTP %d with Body %s", resp.StatusCode, string(body)))
 
 	err = json.Unmarshal([]byte(body), &definition)
 	if err != nil {
+		r.Logger.Log(fmt.Sprintf("Json unmarshal error %s", err))
 		return err
 	}
 
