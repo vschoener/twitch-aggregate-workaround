@@ -8,8 +8,13 @@ all: re
 gobuild:
 	go install ./...
 
-gobuild_linux:
-	GOOS=linux GOARCH=amd64 go build ./... -o
+binaries:
+	 sh builder.sh github.com/wonderstream/twitch/cmd/aggregation
+	 sh builder.sh github.com/wonderstream/twitch/cmd/auth
+	 sh builder.sh github.com/wonderstream/twitch/cmd/webserver
+
+deploy_prospect: binaries
+	scp bin/* wsprospect:
 
 goclean:
 	go clean
