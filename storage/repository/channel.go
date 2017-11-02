@@ -40,12 +40,13 @@ func (r ChannelRepository) GetLastChannelsRecord() []model.Channel {
 }
 
 // GetLastRecorded returns the last recorded summary from Database
-func (r ChannelRepository) GetLastRecorded(channelName string) model.Channel {
+func (r ChannelRepository) GetLastRecorded(channelName string) (model.Channel, bool) {
 	channel := model.Channel{}
-	r.Database.Gorm.
+	found := !r.Database.Gorm.
 		Where("name = ?", channelName).
 		Order("id DESC").
-		Find(&channel)
+		Find(&channel).
+		RecordNotFound()
 
-	return channel
+	return channel, found
 }

@@ -10,12 +10,12 @@ import (
 // Stream aggregation contains requirement to handle the process
 type Stream struct {
 	Aggregator
-	a             Aggregation
+	a             *Aggregation
 	streamService service.StreamService
 }
 
 // Initialize channel aggregator
-func (s *Stream) Initialize(a Aggregation) {
+func (s *Stream) Initialize(a *Aggregation) {
 	s.a = a
 	s.streamService = service.NewStreamService()
 }

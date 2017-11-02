@@ -11,13 +11,13 @@ import (
 // User manager
 type User struct {
 	Aggregator
-	a              Aggregation
+	a              *Aggregation
 	userRepository repository.UserRepository
 	userService    service.UserService
 }
 
 // Initialize channel aggregator
-func (u *User) Initialize(a Aggregation) {
+func (u *User) Initialize(a *Aggregation) {
 	u.a = a
 	u.userRepository = repository.NewUserRepository(a.Database, a.Logger)
 	u.userService = service.NewUserService()

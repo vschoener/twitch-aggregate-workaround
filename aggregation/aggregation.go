@@ -1,6 +1,9 @@
 package aggregation
 
 import (
+	"fmt"
+	"reflect"
+
 	"github.com/wonderstream/twitch/core"
 	"github.com/wonderstream/twitch/logger"
 	"github.com/wonderstream/twitch/storage"
@@ -11,7 +14,7 @@ import (
 
 // Aggregator interface
 type Aggregator interface {
-	Initialize(Aggregation)
+	Initialize(*Aggregation)
 	Process(model.User, bool, core.TokenResponse)
 	End()
 }
@@ -46,6 +49,7 @@ func (a *Aggregation) prepare() {
 	a.Aggregators = append(a.Aggregators, &Channel{})
 	a.Aggregators = append(a.Aggregators, &User{})
 	a.Aggregators = append(a.Aggregators, &Stream{})
+	a.Aggregators = append(a.Aggregators, &Summarize{})
 }
 
 // Start aggregation process
@@ -62,7 +66,8 @@ func (a Aggregation) Start() {
 			token = transformer.TransformStorageCredentialToCoreTokenResponse(credential)
 		}
 		for _, aggregator := range a.Aggregators {
-			aggregator.Initialize(a)
+			a.Logger.Log(fmt.Sprintf("Aggregation started on %s", reflect.TypeOf(aggregator).String()))
+			aggregator.Initialize(&a)
 			aggregator.Process(user, found, token)
 			aggregator.End()
 		}

@@ -14,7 +14,7 @@ import (
 // Channel aggregation contains requirement to handle the process
 type Channel struct {
 	Aggregator
-	a Aggregation
+	a *Aggregation
 	repository.ChannelRepository
 	repository.ChannelVideoRepository
 	channelService      service.ChannelService
@@ -23,7 +23,7 @@ type Channel struct {
 }
 
 // Initialize channel aggregator
-func (c *Channel) Initialize(a Aggregation) {
+func (c *Channel) Initialize(a *Aggregation) {
 	c.a = a
 
 	commonRepository := repository.NewRepository(a.Database, a.Logger)
