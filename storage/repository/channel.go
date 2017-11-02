@@ -23,210 +23,29 @@ func NewChannelRepository(db *storage.Database, l logger.Logger) ChannelReposito
 
 // StoreChannel will add new entry everytime to have an history
 func (r ChannelRepository) StoreChannel(channel model.Channel) bool {
-	query := storage.Query{
-		Query: `
-	        INSERT INTO ` + model.ChannelTable + `
-	        (
-	            mature,
-	            status,
-	            broadcaster_language,
-	            display_name,
-	            game,
-	            language,
-	            _id,
-	            name,
-	            created_at,
-	            updated_at,
-	            partner,
-	            logo,
-	            video_banner,
-	            profile_banner,
-	            profile_banner_background_color,
-	            url,
-	            views,
-	            followers,
-	            broadcaster_type,
-	            stream_key,
-	            email
-	        )
-	        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		Parameters: map[string]interface{}{
-			"ChannelSummary": channel,
-		},
-	}
+	err := r.Database.Gorm.Create(&channel).Error
 
-	state := r.Database.Run(query,
-		channel.Mature,
-		channel.Status,
-		channel.BroadcasterLanguage,
-		channel.DisplayName,
-		channel.Game,
-		channel.Language,
-		channel.IDTwitch,
-		channel.Name,
-		channel.CreatedAt,
-		channel.UpdatedAt,
-		channel.Partner,
-		channel.Logo,
-		channel.VideoBanner,
-		channel.ProfileBanner,
-		channel.ProfileBannerBGColor,
-		channel.URL,
-		channel.Views,
-		channel.Followers,
-		channel.BroadcasterType,
-		channel.StreamKey,
-		channel.Email)
-
-	return state
+	return r.CheckErr(err)
 }
 
-// GetChannels return all channel stored in the database
-func (r ChannelRepository) GetChannels() []model.Channel {
-	query := storage.Query{
-		Query: `
-	        SELECT
-	            id,
-	            mature,
-	            status,
-	            broadcaster_language,
-	            display_name,
-	            game,
-	            language,
-	            _id,
-	            name,
-	            created_at,
-	            updated_at,
-	            partner,
-	            logo,
-	            video_banner,
-	            profile_banner,
-	            profile_banner_background_color,
-	            url,
-	            views,
-	            followers,
-	            broadcaster_type,
-	            stream_key,
-	            email,
-	            date_add
-	        FROM ` + model.ChannelTable + `
-			GROUP BY _id
-			ORDER BY id DESC
-	    `,
-	}
-
-	rows := r.Database.Query(query)
-	if rows == nil {
-		return nil
-	}
-
-	defer rows.Close()
+// GetLastChannelsRecord return all channel stored in the database
+func (r ChannelRepository) GetLastChannelsRecord() []model.Channel {
 	channels := []model.Channel{}
-
-	for rows.Next() {
-		channel := model.Channel{}
-		state := r.Database.ScanRows(rows,
-			&channel.ID,
-			&channel.Mature,
-			&channel.Status,
-			&channel.BroadcasterLanguage,
-			&channel.DisplayName,
-			&channel.Game,
-			&channel.Language,
-			&channel.IDTwitch,
-			&channel.Name,
-			&channel.CreatedAt,
-			&channel.UpdatedAt,
-			&channel.Partner,
-			&channel.Logo,
-			&channel.VideoBanner,
-			&channel.ProfileBanner,
-			&channel.ProfileBannerBGColor,
-			&channel.URL,
-			&channel.Views,
-			&channel.Followers,
-			&channel.BroadcasterType,
-			&channel.StreamKey,
-			&channel.Email,
-			&channel.DateAdd,
-		)
-		if state {
-			channels = append(channels, channel)
-		}
-	}
-	if err := rows.Err(); err != nil {
-		r.Logger.LogInterface(err)
-		return nil
-	}
+	r.Database.Gorm.
+		Group("channel_id").
+		Order("id DESC").
+		Find(&channels)
 
 	return channels
 }
 
-// GetLastUpdatedChannelSummary returns the last recorded summary from Database
-func (r ChannelRepository) GetLastUpdatedChannelSummary(channelName string) model.Channel {
-	query := storage.Query{
-		Query: `
-	        SELECT
-	            id,
-	            mature,
-	            status,
-	            broadcaster_language,
-	            display_name,
-	            game,
-	            language,
-	            _id,
-	            name,
-	            created_at,
-	            updated_at,
-	            partner,
-	            logo,
-	            video_banner,
-	            profile_banner,
-	            profile_banner_background_color,
-	            url,
-	            views,
-	            followers,
-	            broadcaster_type,
-	            stream_key,
-	            email,
-	            date_add
-	        FROM ` + model.ChannelTable + `
-			WHERE name=?
-			ORDER BY id DESC
-			LIMIT 1
-		`,
-		Parameters: map[string]interface{}{
-			"name": channelName,
-		},
-	}
-	row := r.Database.QueryRow(query, channelName)
+// GetLastRecorded returns the last recorded summary from Database
+func (r ChannelRepository) GetLastRecorded(channelName string) model.Channel {
 	channel := model.Channel{}
-
-	r.Database.ScanRow(row,
-		&channel.ID,
-		&channel.Mature,
-		&channel.Status,
-		&channel.BroadcasterLanguage,
-		&channel.DisplayName,
-		&channel.Game,
-		&channel.Language,
-		&channel.IDTwitch,
-		&channel.Name,
-		&channel.CreatedAt,
-		&channel.UpdatedAt,
-		&channel.Partner,
-		&channel.Logo,
-		&channel.VideoBanner,
-		&channel.ProfileBanner,
-		&channel.ProfileBannerBGColor,
-		&channel.URL,
-		&channel.Views,
-		&channel.Followers,
-		&channel.BroadcasterType,
-		&channel.StreamKey,
-		&channel.Email,
-		&channel.DateAdd,
-	)
+	r.Database.Gorm.
+		Where("name = ?", channelName).
+		Order("id DESC").
+		Find(&channel)
 
 	return channel
 }

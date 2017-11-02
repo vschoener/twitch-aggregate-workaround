@@ -1,8 +1,10 @@
 package transformer
 
 import (
+	"log"
 	"strings"
 
+	"github.com/jinzhu/gorm"
 	"github.com/wonderstream/twitch/core"
 	"github.com/wonderstream/twitch/core/model"
 	storageModel "github.com/wonderstream/twitch/storage/model"
@@ -21,7 +23,7 @@ func TransformCoreChannelToStorageChannel(c model.Channel) storageModel.Channel 
 		DisplayName:          c.DisplayName,
 		Game:                 c.Game,
 		Language:             c.Language,
-		IDTwitch:             c.IDTwitch,
+		ChannelID:            c.IDTwitch,
 		Name:                 c.Name,
 		CreatedAt:            c.CreatedAt,
 		UpdatedAt:            c.UpdatedAt,
@@ -44,8 +46,8 @@ func TransformCoreVideoToStorageVideo(v model.Video) storageModel.ChannelVideo {
 		Title:           v.Title,
 		Description:     v.Description,
 		DescriptionHTML: v.DescriptionHTML,
-		BrodcastID:      v.BrodcastID,
-		BrodcastType:    v.BrodcastType,
+		BroadcastID:     v.BroadcastID,
+		BroadcastType:   v.BroadcastType,
 		Status:          v.Status,
 		TagList:         v.TagList,
 		Views:           v.Views,
@@ -64,15 +66,18 @@ func TransformCoreVideoToStorageVideo(v model.Video) storageModel.ChannelVideo {
 
 // TransformCoreUserToStorageUser transform model from Core to Storage
 func TransformCoreUserToStorageUser(u model.User) storageModel.User {
+	log.Println(u.CreatedAt)
 	return storageModel.User{
 		DisplayName: u.DisplayName,
 		UserID:      u.UserID,
 		Name:        u.Name,
 		Type:        u.Type,
 		Bio:         u.Bio,
-		CreatedAt:   u.CreatedAt,
-		UpdatedAt:   u.UpdatedAt,
 		Logo:        u.Logo,
+		Model: gorm.Model{
+			CreatedAt: u.CreatedAt,
+			UpdatedAt: u.UpdatedAt,
+		},
 	}
 }
 

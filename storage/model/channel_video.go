@@ -6,7 +6,7 @@ import (
 
 const (
 	// ChannelVideoTable database table
-	ChannelVideoTable = "channel_video"
+	ChannelVideoTable = "channel_videos"
 )
 
 // ChannelVideo mapping table
@@ -17,8 +17,8 @@ type ChannelVideo struct {
 	Title           string
 	Description     string
 	DescriptionHTML string
-	BrodcastID      int64
-	BrodcastType    string
+	BroadcastID     int64
+	BroadcastType   string
 	Status          string
 	TagList         string
 	Views           int64

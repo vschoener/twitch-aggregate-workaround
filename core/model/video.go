@@ -7,8 +7,8 @@ type Video struct {
 	Title           string    `json:"title"`
 	Description     string    `json:"description"`
 	DescriptionHTML string    `json:"description_html"`
-	BrodcastID      int64     `json:"broadcast_id"`
-	BrodcastType    string    `json:"broadcast_type"`
+	BroadcastID     int64     `json:"broadcast_id"`
+	BroadcastType   string    `json:"broadcast_type"`
 	Status          string    `json:"status"`
 	TagList         string    `json:"tag_list"`
 	Views           int64     `json:"views"`

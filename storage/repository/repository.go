@@ -18,3 +18,14 @@ func NewRepository(d *storage.Database, l logger.Logger) *Repository {
 		Logger:   l,
 	}
 }
+
+// CheckErr check any error or log
+func (r *Repository) CheckErr(err error) bool {
+	if nil != err {
+		r.Database.Logger.LogInterface(err)
+
+		return false
+	}
+
+	return true
+}

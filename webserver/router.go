@@ -103,7 +103,7 @@ func (r Router) addChannel(w http.ResponseWriter, req *http.Request) {
 				s.Success = "User has been added / updated"
 				s.ChannelName = ""
 			} else {
-				s.Error = "User has not beend added"
+				s.Error = "User has not been added"
 			}
 		}
 	}

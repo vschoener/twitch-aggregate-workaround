@@ -6,6 +6,7 @@ import (
 
 	// Only used to query database
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/jinzhu/gorm"
 	"github.com/wonderstream/twitch/logger"
 )
 
@@ -13,6 +14,7 @@ import (
 type Database struct {
 	DB     *sql.DB
 	Logger logger.Logger
+	Gorm   *gorm.DB
 }
 
 // DatabaseSettings info
@@ -114,9 +116,9 @@ func (s *Database) ScanRow(row *sql.Row, dest ...interface{}) bool {
 
 // Connect to the server
 func (s *Database) Connect(dbSettings *DatabaseSettings) {
-	db, err := sql.Open(
+	db, err := gorm.Open(
 		"mysql",
-		fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
+		fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=true",
 			dbSettings.User,
 			dbSettings.Password,
 			dbSettings.URL,
@@ -128,7 +130,9 @@ func (s *Database) Connect(dbSettings *DatabaseSettings) {
 		s.Logger.Log(err.Error())
 		panic(err.Error())
 	}
-	s.DB = db
+
+	s.Gorm = db
+	s.DB = db.DB()
 
 	s.Logger.Log("Database storage connected to " + dbSettings.URL)
 }

@@ -69,12 +69,18 @@ func (a *Auth) HandleUserAccessTokenHTTPRequest(w http.ResponseWriter, twRequest
 	credential := transformer.TransformCoreTokenResponseToStorageCredential(token)
 	sUser := transformer.TransformCoreUserToStorageUser(user)
 
-	credential.ChannelID = sChannel.IDTwitch
+	credential.ChannelID = sChannel.ChannelID
 	credential.ChannelName = sChannel.Name
 	credential.Email = sChannel.Email
-	credentialRepository.SaveUserCredential(credential)
-	channelRepository.StoreChannel(sChannel)
-	userRepository.StoreUser(sUser)
+	if false == credentialRepository.StoreCredential(credential) {
+		return errors.New("Error getting credential")
+	}
+	if false == channelRepository.StoreChannel(sChannel) {
+		return errors.New("Error storing channel")
+	}
+	if false == userRepository.StoreUser(sUser) {
+		return errors.New("Error storing user")
+	}
 
 	return nil
 }

@@ -6,11 +6,12 @@ import (
 
 const (
 	// CredentialTable database table
-	CredentialTable = "credential"
+	CredentialTable = "credentials"
 )
 
 // Credential map the database table
 type Credential struct {
+	UID          string `gorm:"column:uid"`
 	ID           int64
 	AppName      string
 	ChannelName  string

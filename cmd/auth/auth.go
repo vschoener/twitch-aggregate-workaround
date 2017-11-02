@@ -36,5 +36,5 @@ func main() {
 	}
 	sToken := transformer.TransformCoreTokenResponseToStorageCredential(token)
 	sToken.AppName = oauth2.AppName
-	r.SaveAppCredential(sToken)
+	r.StoreCredential(sToken)
 }
