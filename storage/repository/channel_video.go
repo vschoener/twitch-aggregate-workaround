@@ -2,7 +2,6 @@ package repository
 
 import (
 	"log"
-	"time"
 
 	"github.com/wonderstream/twitch/logger"
 	"github.com/wonderstream/twitch/storage"
@@ -38,7 +37,7 @@ func (r ChannelVideoRepository) RegisterVideoToChannel(channelID int64, video mo
 }
 
 // GetAirTime returns the total stream in seconds
-func (r ChannelVideoRepository) GetAirTime(channelID int64, from *time.Time, to *time.Time) int64 {
+func (r ChannelVideoRepository) GetAirTime(channelID int64, queryFilter storage.QueryFilter) int64 {
 	type Result struct {
 		Total int64
 	}
@@ -53,12 +52,8 @@ func (r ChannelVideoRepository) GetAirTime(channelID int64, from *time.Time, to 
 			"archive",
 		).Group("channel_id")
 
-	if nil != from {
-		db = db.Where("recorded_at >= ?", from.Format("2006-01-02"))
-	}
-	if nil != to {
-		db = db.Where("recorded_at <= DATE_ADD(?, INTERVAL 1 DAY)", to.Format("2006-01-02"))
-	}
+	queryFilter.DateField = "recorded_at"
+	r.applyFilter(db, queryFilter)
 
 	err := db.Scan(&result).Error
 
@@ -67,4 +62,45 @@ func (r ChannelVideoRepository) GetAirTime(channelID int64, from *time.Time, to 
 	}
 
 	return result.Total
+}
+
+// StreamedGame gives information about how much time a game has been played
+type StreamedGame struct {
+	Name        string
+	TotalPlayed int64
+}
+
+// GetGames played
+func (r ChannelVideoRepository) GetGames(channelID int64, queryFilter storage.QueryFilter) []StreamedGame {
+	games := []StreamedGame{}
+
+	db := r.Database.Gorm.
+		Model(&model.ChannelVideo{}).
+		Select("game as Name, Count(*) TotalPlayed").
+		Where(`channel_id = ?
+			AND broadcast_type = ?`,
+			channelID,
+			"archive",
+		).Order("TotalPlayed DESC").
+		Group("game")
+
+	queryFilter.DateField = "recorded_at"
+	r.applyFilter(db, queryFilter)
+
+	rows, err := db.Rows()
+	defer rows.Close()
+
+	if nil != err {
+		log.Println(err)
+	}
+
+	// Would prefer to scan the list instead of browsing and store the row but
+	// it was not working :(
+	for rows.Next() {
+		t := StreamedGame{}
+		rows.Scan(&t.Name, &t.TotalPlayed)
+		games = append(games, t)
+	}
+
+	return games
 }

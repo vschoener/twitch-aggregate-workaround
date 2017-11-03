@@ -66,7 +66,7 @@ func (a Aggregation) Start() {
 			token = transformer.TransformStorageCredentialToCoreTokenResponse(credential)
 		}
 		for _, aggregator := range a.Aggregators {
-			a.Logger.Log(fmt.Sprintf("Aggregation started on %s", reflect.TypeOf(aggregator).String()))
+			a.Logger.Log(fmt.Sprintf("Aggregation %s started for %s", reflect.TypeOf(aggregator).String(), user.Name))
 			aggregator.Initialize(&a)
 			aggregator.Process(user, found, token)
 			aggregator.End()

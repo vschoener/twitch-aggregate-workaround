@@ -15,7 +15,6 @@ type Summarize struct {
 	ChannelID    int64
 	ChannelName  string
 	AVGCCV       int64 `gorm:"column:avg_ccv"`
-	AllTimeViews int64
 	MaxCCV       int64
 	AirTime      int64
 	HoursWatched int64

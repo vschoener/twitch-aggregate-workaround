@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/jinzhu/gorm"
 	"github.com/wonderstream/twitch/logger"
 	"github.com/wonderstream/twitch/storage"
 )
@@ -28,4 +29,13 @@ func (r *Repository) CheckErr(err error) bool {
 	}
 
 	return true
+}
+
+func (r *Repository) applyFilter(db *gorm.DB, filter storage.QueryFilter) {
+	if nil != filter.DateStart {
+		db = db.Where(filter.DateField+" >= ?", filter.DateStart.Format(storage.SIMPLEFORMATSQL))
+	}
+	if nil != filter.DateEnd {
+		db = db.Where(filter.DateField+" <= DATE_ADD(?, INTERVAL 1 DAY)", filter.DateEnd.Format(storage.SIMPLEFORMATSQL))
+	}
 }
