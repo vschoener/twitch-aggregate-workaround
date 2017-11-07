@@ -19,11 +19,18 @@ twitch:
     app_name: aggregation
 
 database:
-    user: "user"
-    password: "password"
-    url: "url"
-    port: 3306
-    name: "Database name"
+    aggregation:
+        user: "user"
+        password: "password"
+        url: "url"
+        port: 3306
+        name: "Database name"
+    activity:
+        user: "user"
+        password: "password"
+        url: "url"
+        port: 3306
+        name: "Database name"
 
 webserver:
     domain: localhost

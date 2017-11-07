@@ -11,11 +11,11 @@ import (
 )
 
 func main() {
-	credential := credential.NewCredential(credential.YAMLLoader{}, "./parameters.yml")
-	credential.LoadSetting()
+	c := credential.NewCredential(credential.YAMLLoader{}, "./parameters.yml")
+	c.LoadSetting()
 
 	l := logger.NewLogger()
-	l.Connect(credential.LoggerSettings)
+	l.Connect(c.LoggerSettings)
 	defer l.Close()
 
 	l.Log("Preparing aggregation")
@@ -23,10 +23,11 @@ func main() {
 	database := storage.NewDatabase()
 	database.Logger = l.Share()
 	database.Logger.SetPrefix("STORAGE")
-	database.Connect(credential.GetDB())
+	dbSetting := c.GetDB(credential.DBAggregation)
+	database.Connect(&dbSetting)
 	defer database.DB.Close()
 
-	oauth2 := core.NewOAuth2(credential.GetTwitch())
+	oauth2 := core.NewOAuth2(c.GetTwitch())
 	oauth2Logger := l.Share()
 	oauth2Logger.SetPrefix("LIBRARY")
 	oauth2.SetLogger(oauth2Logger)

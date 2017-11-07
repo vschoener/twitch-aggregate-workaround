@@ -30,12 +30,21 @@ func (f *FakeLoader) Load(path string, definition interface{}) error {
 			ErrorRedirectURL:   "http://redirect.error",
 			SuccessRedirectURL: "http://redirect.success",
 		},
-		DatabaseSettings: storage.DatabaseSettings{
-			User:     "john",
-			Password: "doe42",
-			URL:      "host",
-			Port:     "42",
-			Name:     "database",
+		databases: map[DBName]storage.DatabaseSettings{
+			DBAggregation: storage.DatabaseSettings{
+				User:     "john",
+				Password: "doe42",
+				URL:      "host",
+				Port:     "42",
+				Name:     "database",
+			},
+			DBActivity: storage.DatabaseSettings{
+				User:     "johnA",
+				Password: "doe42A",
+				URL:      "hostA",
+				Port:     "42A",
+				Name:     "databaseA",
+			},
 		},
 	}
 
@@ -74,12 +83,19 @@ func TestGetDB(t *testing.T) {
 	credential := NewCredential(fakeLoader, "")
 	credential.LoadSetting()
 	credential.AppSetting = fakeLoader.AppSetting
-	DBSetting := credential.GetDB()
+	DBSetting := credential.GetDB(DBAggregation)
 
 	assert.Equal(t, "john", DBSetting.User, "They should be equal")
 	assert.Equal(t, "doe42", DBSetting.Password, "They should be equal")
 	assert.Equal(t, "host", DBSetting.URL, "They should be equal")
 	assert.Equal(t, "database", DBSetting.Name, "They should be equal")
+
+	DBSetting = credential.GetDB(DBActivity)
+
+	assert.Equal(t, "johnA", DBSetting.User, "They should be equal")
+	assert.Equal(t, "doe42A", DBSetting.Password, "They should be equal")
+	assert.Equal(t, "hostA", DBSetting.URL, "They should be equal")
+	assert.Equal(t, "databaseA", DBSetting.Name, "They should be equal")
 }
 
 func (f FakeLoader) isAppSettingEmpty(s core.TwitchSettings) bool {

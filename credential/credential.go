@@ -23,12 +23,22 @@ type Credential struct {
 	AppSetting
 }
 
+// DBName type to enum and restrict db name from settings
+type DBName string
+
+const (
+	// DBAggregation name
+	DBAggregation DBName = "aggregation"
+	// DBActivity name
+	DBActivity DBName = "activity"
+)
+
 // AppSetting contains app parameters
 type AppSetting struct {
-	core.TwitchSettings      `yaml:"twitch"`
-	storage.DatabaseSettings `yaml:"database"`
-	webserver.ServerSetting  `yaml:"webserver"`
-	LoggerSettings           logger.Settings `yaml:"log"`
+	core.TwitchSettings     `yaml:"twitch"`
+	Databases               map[DBName]storage.DatabaseSettings `yaml:"databases"`
+	webserver.ServerSetting `yaml:"webserver"`
+	LoggerSettings          logger.Settings `yaml:"log"`
 }
 
 // NewCredential constructor
@@ -36,10 +46,6 @@ func NewCredential(loader Loader, path string) *Credential {
 	return &Credential{
 		Loader: loader,
 		Path:   path,
-		AppSetting: AppSetting{
-			TwitchSettings:   core.TwitchSettings{},
-			DatabaseSettings: storage.DatabaseSettings{},
-		},
 	}
 }
 
@@ -56,8 +62,8 @@ func (c *Credential) GetTwitch() *core.TwitchSettings {
 }
 
 // GetDB settings
-func (c *Credential) GetDB() *storage.DatabaseSettings {
-	return &c.DatabaseSettings
+func (c *Credential) GetDB(name DBName) storage.DatabaseSettings {
+	return c.Databases[name]
 }
 
 // GetLog settings
