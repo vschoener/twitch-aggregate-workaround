@@ -1,6 +1,9 @@
 package core
 
-import "strings"
+import (
+	"errors"
+	"strings"
+)
 
 // TwitchSettings settings
 type TwitchSettings struct {
@@ -14,6 +17,26 @@ type TwitchSettings struct {
 	// Extra settings for server application
 	ErrorRedirectURL   string `yaml:"errorRedirectURL"`
 	SuccessRedirectURL string `yaml:"successRedirectURL"`
+}
+
+// Check Settings integrity
+func (ts TwitchSettings) Check() error {
+	var err error
+	if len(ts.ClientID) == 0 {
+		err = errors.New("ClientID is required")
+	} else if len(ts.ClientSecret) == 0 {
+		err = errors.New("ClientSecret is required")
+	} else if len(ts.RedirectURL) == 0 {
+		err = errors.New("Redirect URL is required")
+	} else if len(ts.TwitchRequestSettings.URL) == 0 {
+		err = errors.New("Twitch Request URL is required")
+	} else if len(ts.Scopes) == 0 {
+		err = errors.New("Scopes are required")
+	} else if len(ts.AppName) == 0 {
+		err = errors.New("App name is required")
+	}
+
+	return err
 }
 
 // TwitchRequestSettings settings

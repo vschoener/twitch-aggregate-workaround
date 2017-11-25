@@ -2,6 +2,7 @@ package storage
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	// Only used to query database
@@ -24,6 +25,24 @@ type DatabaseSettings struct {
 	URL      string `yaml:"url"`
 	Port     string `yaml:"port"`
 	Name     string `yaml:"name"`
+}
+
+// Check settings integrity
+func (ds DatabaseSettings) Check() error {
+	var err error
+	if len(ds.User) == 0 {
+		err = errors.New("User is required")
+	} else if len(ds.Password) == 0 {
+		err = errors.New("Password is required")
+	} else if len(ds.URL) == 0 {
+		err = errors.New("URL is required")
+	} else if len(ds.Port) == 0 {
+		err = errors.New("Port is required")
+	} else if len(ds.Name) == 0 {
+		err = errors.New("Database Name is required")
+	}
+
+	return err
 }
 
 // Query contains query and Parameters to process sql query
@@ -116,15 +135,17 @@ func (s *Database) ScanRow(row *sql.Row, dest ...interface{}) bool {
 
 // Connect to the server
 func (s *Database) Connect(dbSettings *DatabaseSettings) {
+	uri := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=true",
+		dbSettings.User,
+		dbSettings.Password,
+		dbSettings.URL,
+		dbSettings.Port,
+		dbSettings.Name,
+	)
+	s.Logger.Log(uri)
 	db, err := gorm.Open(
 		"mysql",
-		fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=true",
-			dbSettings.User,
-			dbSettings.Password,
-			dbSettings.URL,
-			dbSettings.Port,
-			dbSettings.Name,
-		),
+		uri,
 	)
 	if err != nil {
 		s.Logger.Log(err.Error())

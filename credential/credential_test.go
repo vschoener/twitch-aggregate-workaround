@@ -30,7 +30,7 @@ func (f *FakeLoader) Load(path string, definition interface{}) error {
 			ErrorRedirectURL:   "http://redirect.error",
 			SuccessRedirectURL: "http://redirect.success",
 		},
-		databases: map[DBName]storage.DatabaseSettings{
+		Databases: map[DBName]storage.DatabaseSettings{
 			DBAggregation: storage.DatabaseSettings{
 				User:     "john",
 				Password: "doe42",

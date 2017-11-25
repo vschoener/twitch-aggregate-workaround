@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+
 	"github.com/wonderstream/twitch/aggregation"
 	"github.com/wonderstream/twitch/core"
 	"github.com/wonderstream/twitch/credential"
@@ -12,7 +14,9 @@ import (
 
 func main() {
 	c := credential.NewCredential(credential.YAMLLoader{}, "./parameters.yml")
-	c.LoadSetting()
+	if err := c.LoadSetting(); err != nil {
+		log.Fatal(err)
+	}
 
 	l := logger.NewLogger()
 	l.Connect(c.LoggerSettings)
@@ -38,7 +42,7 @@ func main() {
 	appToken, succeed := r.GetAppToken(oauth2.AppName)
 
 	if !succeed {
-		l.LogErrInterface("Credential not found or not loaded properly")
+		l.LogErrInterface("AppToken not found, did you authenticate the script using the auth binary ?")
 		return
 	}
 

@@ -1,6 +1,7 @@
 package webserver
 
 import (
+	"errors"
 	"log"
 	"net/http"
 
@@ -20,6 +21,18 @@ type Server struct {
 type ServerSetting struct {
 	Domain string `yaml:"domain"`
 	Port   string `yaml:"port"`
+}
+
+// Check settings integrity
+func (st ServerSetting) Check() error {
+	var err error
+	if len(st.Domain) == 0 {
+		err = errors.New("Domain is required")
+	} else if len(st.Port) == 0 {
+		err = errors.New("port is required")
+	}
+
+	return err
 }
 
 func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {

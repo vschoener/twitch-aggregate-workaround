@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"errors"
 	"fmt"
 	"log"
 
@@ -46,14 +47,23 @@ type Settings struct {
 	Verbose bool   `yaml:"verbose"`
 }
 
+// Check settings integrity
+func (s Settings) Check() error {
+	var err error
+
+	if s.State == true && len(s.Key) == 0 {
+		err = errors.New("Logger Key is required because State value is 'true'")
+	}
+
+	return err
+}
+
 // NewLogger constructor
 func NewLogger() Logger {
 	return &LogEntry{
 		Settings: Settings{
-			State:   false,
-			Verbose: false,
+			Verbose: true,
 		},
-		prefix: "",
 	}
 }
 

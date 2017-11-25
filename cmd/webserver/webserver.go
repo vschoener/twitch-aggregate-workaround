@@ -13,7 +13,9 @@ import (
 func main() {
 	log.Println("Preparing and loading webserver requirements...")
 	c := credential.NewCredential(credential.YAMLLoader{}, "./parameters.yml")
-	c.LoadSetting()
+	if err := c.LoadSetting(); err != nil {
+		log.Fatal(err)
+	}
 
 	l := logger.NewLogger()
 	l.Connect(c.LoggerSettings)
