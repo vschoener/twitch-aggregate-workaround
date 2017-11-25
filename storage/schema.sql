@@ -5,9 +5,9 @@
 # http://www.sequelpro.com/
 # https://github.com/sequelpro/sequelpro
 #
-# Host: activity-storage.crqripd5tnm8.eu-west-2.rds.amazonaws.com (MySQL 5.6.35-log)
-# Database: activity_storage
-# Generation Time: 2017-10-12 09:14:43 +0000
+# Host: 127.0.0.1 (MySQL 5.5.5-10.3.2-MariaDB-10.3.2+maria~jessie)
+# Database: ws_aggregate_storage
+# Generation Time: 2017-11-09 00:40:27 +0000
 # ************************************************************
 
 
@@ -19,9 +19,6 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-CREATE DATABASE IF NOT EXISTS ws_aggregate_storage;
-
-USE ws_aggregate_storage;
 
 # Dump of table aggregation
 # ------------------------------------------------------------
@@ -41,20 +38,53 @@ CREATE TABLE `aggregation` (
 
 
 
-# Dump of table channel
+# Dump of table channel_videos
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `channel`;
+DROP TABLE IF EXISTS `channel_videos`;
 
-CREATE TABLE `channel` (
+CREATE TABLE `channel_videos` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `channel_id` bigint(11) DEFAULT NULL,
+  `video_id` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `title` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description_html` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `broadcast_id` bigint(20) DEFAULT NULL,
+  `broadcast_type` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tag_list` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `views` int(11) DEFAULT NULL,
+  `url` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `language` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `viewable` varchar(128) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `viewable_at` varchar(128) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `published_at` timestamp NULL DEFAULT NULL,
+  `recorded_at` timestamp NULL DEFAULT NULL,
+  `game` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `length` int(11) DEFAULT NULL,
+  `date_add` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `video_id` (`video_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+
+# Dump of table channels
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `channels`;
+
+CREATE TABLE `channels` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `channel_id` bigint(20) DEFAULT NULL,
   `mature` tinyint(4) DEFAULT NULL,
   `status` varchar(128) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `broadcaster_language` varchar(4) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `display_name` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `game` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `language` varchar(4) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `_id` bigint(20) DEFAULT NULL,
   `name` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `updated_at` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -62,7 +92,7 @@ CREATE TABLE `channel` (
   `logo` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `video_banner` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `profile_banner` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `profile_banner_background_color` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `profile_banner_bg_color` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `url` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `views` bigint(20) DEFAULT NULL,
   `followers` bigint(20) DEFAULT NULL,
@@ -75,67 +105,59 @@ CREATE TABLE `channel` (
 
 
 
-# Dump of table channel_video
+# Dump of table credentials
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `channel_video`;
+DROP TABLE IF EXISTS `credentials`;
 
-CREATE TABLE `channel_video` (
+CREATE TABLE `credentials` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `channel_id` bigint(11) DEFAULT NULL,
-  `video_id` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `title` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `description_html` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `broadcast_id` bigint(20) DEFAULT NULL,
-  `broadcast_type` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `status` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `tag_list` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `views` int(11) DEFAULT NULL,
-  `url` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `language` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `viewable` varchar(128) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `viewable_at` varchar(128) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `published_at` timestamp NULL DEFAULT NULL,
-  `recorded_at` timestamp NULL DEFAULT NULL,
-  `game` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `length` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `video_id` (`video_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-
-# Dump of table credential
-# ------------------------------------------------------------
-
-DROP TABLE IF EXISTS `credential`;
-
-CREATE TABLE `credential` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `uid` varchar(64) DEFAULT NULL,
-  `app_name` varchar(11) DEFAULT NULL,
-  `channel_name` varchar(32) DEFAULT NULL,
+  `uid` varchar(64) CHARACTER SET utf8 DEFAULT NULL,
+  `app_name` varchar(11) CHARACTER SET utf8 DEFAULT NULL,
+  `channel_name` varchar(32) CHARACTER SET utf8 DEFAULT NULL,
   `channel_id` bigint(20) DEFAULT NULL,
-  `access_token` varchar(256) NOT NULL DEFAULT '',
-  `refresh_token` varchar(128) NOT NULL DEFAULT '',
-  `scope` text DEFAULT NULL,
+  `access_token` varchar(256) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `refresh_token` varchar(128) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `scopes` text CHARACTER SET utf8 DEFAULT NULL,
   `expires_in` int(11) DEFAULT NULL,
   `date_updated` timestamp NULL DEFAULT current_timestamp(),
-  `email` varchar(128) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uid` (`uid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `email` varchar(128) CHARACTER SET utf8 DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 
-# Dump of table user
+# Dump of table summarizes
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `user`;
+DROP TABLE IF EXISTS `summarizes`;
 
-CREATE TABLE `user` (
+CREATE TABLE `summarizes` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `channel_id` bigint(11) DEFAULT NULL,
+  `channel_name` varchar(32) CHARACTER SET latin1 DEFAULT NULL,
+  `avg_ccv` int(11) DEFAULT NULL,
+  `max_ccv` int(11) DEFAULT NULL,
+  `air_time` int(11) DEFAULT NULL,
+  `hours_watched` int(11) DEFAULT NULL,
+  `primary_game` varchar(64) CHARACTER SET latin1 DEFAULT NULL,
+  `partner` tinyint(4) DEFAULT NULL,
+  `mature` tinyint(11) DEFAULT NULL,
+  `language` varchar(32) CHARACTER SET latin1 DEFAULT NULL,
+  `views` bigint(20) DEFAULT NULL,
+  `followers` int(11) DEFAULT NULL,
+  `date_add` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+
+# Dump of table users
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `users`;
+
+CREATE TABLE `users` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` bigint(20) DEFAULT NULL,
   `bio` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -146,6 +168,7 @@ CREATE TABLE `user` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `date_add` timestamp NULL DEFAULT current_timestamp(),
+  `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
