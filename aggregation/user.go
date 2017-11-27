@@ -3,6 +3,7 @@ package aggregation
 import (
 	"github.com/wonderstream/twitch/core"
 	"github.com/wonderstream/twitch/core/service"
+	"github.com/wonderstream/twitch/storage"
 	"github.com/wonderstream/twitch/storage/model"
 	"github.com/wonderstream/twitch/storage/repository"
 	"github.com/wonderstream/twitch/storage/transformer"
@@ -19,7 +20,7 @@ type User struct {
 // Initialize channel aggregator
 func (u *User) Initialize(a *Aggregation) {
 	u.a = a
-	u.userRepository = repository.NewUserRepository(a.Database, a.Logger)
+	u.userRepository = repository.NewUserRepository(a.DM.Get(storage.DBAggregation), a.Logger)
 	u.userService = service.NewUserService()
 }
 

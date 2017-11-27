@@ -23,17 +23,17 @@ type Aggregator interface {
 type Aggregation struct {
 	Aggregators     []Aggregator
 	OAuth2          *core.OAuth2
-	Database        *storage.Database
+	DM              *storage.DatabaseManager
 	Logger          logger.Logger
 	twPublicRequest *core.Request
 	AppToken        core.TokenResponse
 }
 
 // NewAggregation constructor
-func NewAggregation(o *core.OAuth2, db *storage.Database, l logger.Logger, appToken core.TokenResponse) Aggregation {
+func NewAggregation(o *core.OAuth2, dm *storage.DatabaseManager, l logger.Logger, appToken core.TokenResponse) Aggregation {
 	return Aggregation{
 		OAuth2:   o,
-		Database: db,
+		DM:       dm,
 		Logger:   l,
 		AppToken: appToken,
 	}
@@ -55,8 +55,8 @@ func (a *Aggregation) prepare() {
 // Start aggregation process
 func (a Aggregation) Start() {
 	a.prepare()
-	credentialRepository := repository.NewCredentialRepository(a.Database, a.Logger)
-	userRepository := repository.NewUserRepository(a.Database, a.Logger)
+	credentialRepository := repository.NewCredentialRepository(a.DM.Get(storage.DBAggregation), a.Logger)
+	userRepository := repository.NewUserRepository(a.DM.Get(storage.DBAggregation), a.Logger)
 	users := userRepository.GetUsers()
 
 	for _, user := range users {

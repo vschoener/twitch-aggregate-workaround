@@ -29,16 +29,6 @@ type Credential struct {
 	checkersList map[SettingName]bool
 }
 
-// DBName type to enum and restrict db name from settings
-type DBName string
-
-const (
-	// DBAggregation name
-	DBAggregation DBName = "aggregation"
-	// DBActivity name
-	DBActivity DBName = "activity"
-)
-
 // SettingName type to enum and list settings to check
 type SettingName int
 
@@ -55,8 +45,8 @@ const (
 
 // AppSetting contains app parameters
 type AppSetting struct {
-	TwitchSettings          core.TwitchSettings                 `yaml:"twitch"`
-	Databases               map[DBName]storage.DatabaseSettings `yaml:"databases"`
+	TwitchSettings          core.TwitchSettings                         `yaml:"twitch"`
+	Databases               map[storage.DBName]storage.DatabaseSettings `yaml:"databases"`
 	webserver.ServerSetting `yaml:"webserver"`
 	LoggerSettings          logger.Settings `yaml:"log"`
 }
@@ -118,7 +108,7 @@ func (c *Credential) GetTwitch() *core.TwitchSettings {
 }
 
 // GetDB settings
-func (c *Credential) GetDB(name DBName) storage.DatabaseSettings {
+func (c *Credential) GetDB(name storage.DBName) storage.DatabaseSettings {
 	return c.Databases[name]
 }
 

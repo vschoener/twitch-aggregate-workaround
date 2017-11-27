@@ -6,6 +6,7 @@ import (
 	"github.com/wonderstream/twitch/core"
 	coreModel "github.com/wonderstream/twitch/core/model"
 	"github.com/wonderstream/twitch/core/service"
+	"github.com/wonderstream/twitch/storage"
 	"github.com/wonderstream/twitch/storage/model"
 	"github.com/wonderstream/twitch/storage/repository"
 	"github.com/wonderstream/twitch/storage/transformer"
@@ -26,7 +27,7 @@ type Channel struct {
 func (c *Channel) Initialize(a *Aggregation) {
 	c.a = a
 
-	commonRepository := repository.NewRepository(a.Database, a.Logger)
+	commonRepository := repository.NewRepository(a.DM.Get(storage.DBAggregation), a.Logger)
 	c.ChannelRepository = repository.ChannelRepository{
 		Repository: commonRepository,
 	}

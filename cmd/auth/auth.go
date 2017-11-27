@@ -24,7 +24,7 @@ func main() {
 
 	database := storage.NewDatabase()
 	database.Logger = l
-	dbSetting := c.GetDB(credential.DBAggregation)
+	dbSetting := c.GetDB(storage.DBAggregation)
 	database.Connect(&dbSetting)
 	defer database.DB.Close()
 

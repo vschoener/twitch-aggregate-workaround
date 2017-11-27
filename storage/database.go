@@ -11,11 +11,57 @@ import (
 	"github.com/wonderstream/twitch/logger"
 )
 
+// DBName type to enum and restrict db name from settings
+type DBName string
+
+const (
+	// DBAggregation name
+	DBAggregation DBName = "aggregation"
+	// DBActivity name
+	DBActivity DBName = "activity"
+)
+
 // Database storage
 type Database struct {
 	DB     *sql.DB
 	Logger logger.Logger
 	Gorm   *gorm.DB
+}
+
+// DatabaseManager manage databases
+type DatabaseManager struct {
+	DBs map[DBName]*Database
+}
+
+// GetDM constructor
+func GetDM() *DatabaseManager {
+	return &DatabaseManager{
+		DBs: make(map[DBName]*Database),
+	}
+}
+
+// ConnectNewDatabase connects to a dB
+func (dm *DatabaseManager) ConnectNewDatabase(name DBName, settings DatabaseSettings, l logger.Logger) *DatabaseManager {
+	database := NewDatabase()
+	database.Logger = l
+	database.Logger.SetPrefix("STORAGE")
+	dm.DBs[name] = database.Connect(&settings)
+
+	return dm
+}
+
+// GetNames of the database
+func (dm DatabaseManager) GetNames() []DBName {
+	return []DBName{DBAggregation, DBActivity}
+}
+
+// Get return a DB instance of the requested DB
+func (dm *DatabaseManager) Get(name DBName) *Database {
+	if db, ok := dm.DBs[name]; ok {
+		return db
+	}
+
+	return nil
 }
 
 // DatabaseSettings info
@@ -134,7 +180,7 @@ func (s *Database) ScanRow(row *sql.Row, dest ...interface{}) bool {
 }
 
 // Connect to the server
-func (s *Database) Connect(dbSettings *DatabaseSettings) {
+func (s *Database) Connect(dbSettings *DatabaseSettings) *Database {
 	uri := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=true",
 		dbSettings.User,
 		dbSettings.Password,
@@ -156,9 +202,17 @@ func (s *Database) Connect(dbSettings *DatabaseSettings) {
 	s.DB = db.DB()
 
 	s.Logger.Log("Database storage connected to " + dbSettings.URL)
+
+	return s
 }
 
 // IsConnected return current status
 func (s *Database) IsConnected() bool {
 	return s.DB != nil
+}
+
+// Close database connection
+func (s *Database) Close() *Database {
+	s.DB.Close()
+	return s
 }

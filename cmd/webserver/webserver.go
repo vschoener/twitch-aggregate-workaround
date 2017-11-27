@@ -23,7 +23,7 @@ func main() {
 	database := storage.NewDatabase()
 	database.Logger = l.Share()
 	database.Logger.SetPrefix("STORAGE")
-	dbSetting := c.GetDB(credential.DBAggregation)
+	dbSetting := c.GetDB(storage.DBAggregation)
 	database.Connect(&dbSetting)
 
 	defer database.DB.Close()

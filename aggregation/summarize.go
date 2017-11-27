@@ -24,9 +24,9 @@ type Summarize struct {
 // Initialize channel aggregator
 func (s *Summarize) Initialize(a *Aggregation) {
 	s.a = a
-	s.sRepo = repository.NewSummarizeRepository(a.Database, a.Logger)
-	s.cRepo = repository.NewChannelRepository(a.Database, a.Logger)
-	s.cvRepo = repository.NewChannelVideoRepository(a.Database, a.Logger)
+	s.sRepo = repository.NewSummarizeRepository(a.DM.Get(storage.DBAggregation), a.Logger)
+	s.cRepo = repository.NewChannelRepository(a.DM.Get(storage.DBAggregation), a.Logger)
+	s.cvRepo = repository.NewChannelVideoRepository(a.DM.Get(storage.DBAggregation), a.Logger)
 }
 
 // Process channel aggregator
@@ -52,7 +52,7 @@ func (s Summarize) Process(u sModel.User, isAuthenticated bool, token core.Token
 		s.Summarize.AirTime = s.cvRepo.GetAirTime(channel.ChannelID, queryFilter)
 		s.Summarize.PrimaryGame = s.caService.GetPrimaryGame(channel.ChannelID, queryFilter, s.cvRepo).Name
 
-		err := s.a.Database.Gorm.Create(&s.Summarize).Error
+		err := s.a.DM.Get(storage.DBAggregation).Gorm.Create(&s.Summarize).Error
 
 		if err != nil {
 			s.a.Logger.LogInterface(err)

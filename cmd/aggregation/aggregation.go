@@ -24,12 +24,11 @@ func main() {
 
 	l.Log("Preparing aggregation")
 
-	database := storage.NewDatabase()
-	database.Logger = l.Share()
-	database.Logger.SetPrefix("STORAGE")
-	dbSetting := c.GetDB(credential.DBAggregation)
-	database.Connect(&dbSetting)
-	defer database.DB.Close()
+	dm := storage.GetDM()
+	dm.ConnectNewDatabase(storage.DBAggregation, c.GetDB(storage.DBAggregation), l.Share())
+	defer dm.Get(storage.DBAggregation).Close()
+	dm.ConnectNewDatabase(storage.DBActivity, c.GetDB(storage.DBActivity), l.Share())
+	defer dm.Get(storage.DBActivity).Close()
 
 	oauth2 := core.NewOAuth2(c.GetTwitch())
 	oauth2Logger := l.Share()
@@ -37,7 +36,7 @@ func main() {
 	oauth2.SetLogger(oauth2Logger)
 
 	r := repository.CredentialRepository{
-		Repository: repository.NewRepository(database, l),
+		Repository: repository.NewRepository(dm.Get(storage.DBAggregation), l),
 	}
 	appToken, succeed := r.GetAppToken(oauth2.AppName)
 
@@ -52,7 +51,7 @@ func main() {
 	aggregationLogger.SetPrefix("AGGREGATION")
 	aggregation := aggregation.NewAggregation(
 		oauth2,
-		database,
+		dm,
 		aggregationLogger,
 		token,
 	)
