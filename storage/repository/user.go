@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"time"
+
 	"github.com/wonderstream/twitch/logger"
 	"github.com/wonderstream/twitch/storage"
 	"github.com/wonderstream/twitch/storage/model"
@@ -32,6 +34,8 @@ func (r UserRepository) GetUsers() []model.User {
 // StoreUser inserts User info in the storage and keep history
 func (r UserRepository) StoreUser(user model.User) bool {
 	newUser := model.User{}
+	newUser.MetaDateAdd = time.Now()
+	user.MetaDateUpdate = time.Now()
 	err := r.Database.Gorm.
 		Where(model.User{UserID: user.UserID}).
 		Assign(user).

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"log"
+	"time"
 
 	"github.com/wonderstream/twitch/logger"
 	"github.com/wonderstream/twitch/storage"
@@ -27,6 +28,7 @@ func NewChannelVideoRepository(db *storage.Database, l logger.Logger) ChannelVid
 func (r ChannelVideoRepository) RegisterVideoToChannel(channelID int64, video model.ChannelVideo) bool {
 	video.ChannelID = channelID
 	newVideo := model.ChannelVideo{}
+	newVideo.MetaDateAdd = time.Now()
 	err := r.Database.Gorm.
 		Where(model.ChannelVideo{VideoID: video.VideoID}).
 		Assign(video).

@@ -12,7 +12,7 @@ const (
 // Channel mapping table
 type Channel struct {
 	ID                   int64
-	DateAdd              time.Time
+	MetaDateAdd          time.Time
 	Mature               bool
 	Status               string
 	BroadcasterLanguage  string

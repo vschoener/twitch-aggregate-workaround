@@ -1,10 +1,6 @@
 package model
 
-import (
-	"time"
-
-	"github.com/jinzhu/gorm"
-)
+import "time"
 
 const (
 	// UserTable database table
@@ -13,12 +9,15 @@ const (
 
 // User is the storage manager
 type User struct {
-	gorm.Model
-	DisplayName string
-	UserID      int64 `gorm:"unique_index"`
-	Name        string
-	Type        string
-	Bio         string
-	Logo        string
-	DateAdd     time.Time
+	ID             uint `gorm:"primary_key"`
+	MetaDateAdd    time.Time
+	MetaDateUpdate time.Time
+	DisplayName    string
+	UserID         int64 `gorm:"unique_index"`
+	Name           string
+	Type           string
+	Bio            string
+	Logo           string
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
 }

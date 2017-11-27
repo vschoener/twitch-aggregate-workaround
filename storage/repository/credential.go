@@ -3,6 +3,7 @@ package repository
 import (
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/wonderstream/twitch/logger"
 	"github.com/wonderstream/twitch/storage"
@@ -37,6 +38,8 @@ func (r *CredentialRepository) getUID(c model.Credential) string {
 func (r *CredentialRepository) StoreCredential(c model.Credential) bool {
 	uid := r.getUID(c)
 	newCredential := model.Credential{}
+	newCredential.MetaDateAdd = time.Now()
+	c.MetaDateUpdate = time.Now()
 	err := r.Database.Gorm.
 		Where(model.Credential{UID: uid}).
 		Assign(c).

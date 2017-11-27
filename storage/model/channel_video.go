@@ -12,8 +12,8 @@ const (
 // ChannelVideo mapping table
 type ChannelVideo struct {
 	ID              int64
+	MetaDateAdd     time.Time
 	ChannelID       int64
-	DateAdd         time.Time
 	Title           string
 	Description     string
 	DescriptionHTML string

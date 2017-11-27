@@ -42,6 +42,7 @@ func (s Summarize) Process(u sModel.User, isAuthenticated bool, token core.Token
 		DateEnd:   &dateEnd,
 	}
 	if channel, found := s.cRepo.GetLastRecorded(u.Name); found {
+		s.Summarize.MetaDateAdd = time.Now()
 		s.Summarize.Followers = channel.Followers
 		s.Summarize.Views = channel.Views
 		s.Summarize.ChannelID = channel.ChannelID

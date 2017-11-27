@@ -12,6 +12,7 @@ const (
 // Summarize mapping table
 type Summarize struct {
 	ID           int64
+	MetaDateAdd  time.Time
 	ChannelID    int64
 	ChannelName  string
 	AVGCCV       int64 `gorm:"column:avg_ccv"`
@@ -24,5 +25,4 @@ type Summarize struct {
 	Language     string
 	Views        int64
 	Followers    int64
-	DateAdd      time.Time
 }

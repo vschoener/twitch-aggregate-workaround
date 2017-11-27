@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"time"
+
 	"github.com/wonderstream/twitch/logger"
 	"github.com/wonderstream/twitch/storage"
 	"github.com/wonderstream/twitch/storage/model"
@@ -23,6 +25,7 @@ func NewChannelRepository(db *storage.Database, l logger.Logger) ChannelReposito
 
 // StoreChannel will add new entry everytime to have an history
 func (r ChannelRepository) StoreChannel(channel model.Channel) bool {
+	channel.MetaDateAdd = time.Now()
 	err := r.Database.Gorm.Create(&channel).Error
 
 	return r.CheckErr(err)
