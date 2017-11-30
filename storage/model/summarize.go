@@ -11,18 +11,18 @@ const (
 
 // Summarize mapping table
 type Summarize struct {
-	ID           int64
-	MetaDateAdd  time.Time
-	ChannelID    int64
-	ChannelName  string
-	AVGCCV       int64 `gorm:"column:avg_ccv"`
-	MaxCCV       int64
-	AirTime      int64
-	HoursWatched int64
-	PrimaryGame  string
-	Partner      bool
-	Mature       bool
-	Language     string
-	Views        int64
-	Followers    int64
+	ID             int64
+	MetaDateAdd    time.Time
+	ChannelID      int64
+	ChannelName    string
+	AVGCCV         int64 `gorm:"column:avg_ccv"`
+	MaxCCV         int64
+	AirTime        int64
+	SecondsWatched int64
+	PrimaryGame    string
+	Partner        bool
+	Mature         bool
+	Language       string
+	Views          int64
+	Followers      int64
 }

@@ -2,12 +2,12 @@ package main
 
 import (
 	"log"
+	"time"
 
-	"github.com/wonderstream/twitch/core"
-	"github.com/wonderstream/twitch/core/service"
 	"github.com/wonderstream/twitch/credential"
 	"github.com/wonderstream/twitch/logger"
 	"github.com/wonderstream/twitch/storage"
+	"github.com/wonderstream/twitch/storage/repository"
 )
 
 func main() {
@@ -16,21 +16,35 @@ func main() {
 
 	l := logger.NewLogger()
 	l.Connect(c.LoggerSettings)
-	defer l.(*logger.LogEntry).Client.Close()
+	defer l.Close()
 
 	l.Log("Preparing aggregation")
 
-	database := storage.NewDatabase()
-	database.Logger = l
-	dbSetting := c.GetDB(storage.DBAggregation)
-	database.Connect(&dbSetting)
-	defer database.DB.Close()
+	dm := storage.GetDM()
+	dm.ConnectNewDatabase(storage.DBAggregation, c.GetDB(storage.DBAggregation), l.Share())
+	defer dm.Get(storage.DBAggregation).Close()
+	dm.ConnectNewDatabase(storage.DBActivity, c.GetDB(storage.DBActivity), l.Share())
+	defer dm.Get(storage.DBActivity).Close()
 
-	oauth2 := core.NewOAuth2(c.GetTwitch())
+	//oauth2 := core.NewOAuth2(c.GetTwitch())
+	// twitchRequest := core.NewRequest(oauth2)
+	// twitchRequest.Logger = l
+	// v := service.NewVideoService()
+	// log.Printf("%#v", v.GetVideosFromID(42544623, twitchRequest, 10))
 
-	twitchRequest := core.NewRequest(oauth2)
-	twitchRequest.Logger = l
-	v := service.NewVideoService()
+	r := repository.NewActivityStorageRepository(dm.Get(storage.DBActivity), l)
+	dateStart := time.Date(2017, time.November, 20, 0, 0, 0, 0, time.UTC)
+	filters := storage.QueryFilter{
+		DateStart: &dateStart,
+		Exclude: map[string][]string{
+			"username": {"wondrlurker"},
+		},
+		Include: map[string][]string{
+			"type": {"JOIN", "PART"},
+		},
+	}
 
-	log.Printf("%#v", v.GetVideosFromID(42544623, twitchRequest, 10))
+	//activities := r.GetChannelActivities("dota2ti", filters)
+	hoursWatched := r.GetWatchedTime("dota2ti", filters)
+	log.Printf("%d", hoursWatched)
 }

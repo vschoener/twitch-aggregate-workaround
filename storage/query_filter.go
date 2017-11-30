@@ -12,4 +12,6 @@ type QueryFilter struct {
 	DateStart *time.Time
 	DateEnd   *time.Time
 	DateField string
+	Exclude   map[string][]string
+	Include   map[string][]string
 }

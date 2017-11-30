@@ -199,6 +199,7 @@ func (s *Database) Connect(dbSettings *DatabaseSettings) *Database {
 	}
 
 	s.Gorm = db
+	s.Gorm.SingularTable(false)
 	s.DB = db.DB()
 
 	s.Logger.Log("Database storage connected to " + dbSettings.URL)

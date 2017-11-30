@@ -13,12 +13,13 @@ import (
 // Summarize aggregation contains requirement to handle the process
 type Summarize struct {
 	Aggregator
-	a         *Aggregation
-	sRepo     repository.SummarizeRepository
-	cRepo     repository.ChannelRepository
-	cvRepo    repository.ChannelVideoRepository
-	caService service.ChannelService
-	Summarize sModel.Summarize
+	a                   *Aggregation
+	sRepo               repository.SummarizeRepository
+	cRepo               repository.ChannelRepository
+	cvRepo              repository.ChannelVideoRepository
+	activityStorageRepo repository.ActivityStorageRepository
+	caService           service.ChannelService
+	Summarize           sModel.Summarize
 }
 
 // Initialize channel aggregator
@@ -27,6 +28,7 @@ func (s *Summarize) Initialize(a *Aggregation) {
 	s.sRepo = repository.NewSummarizeRepository(a.DM.Get(storage.DBAggregation), a.Logger)
 	s.cRepo = repository.NewChannelRepository(a.DM.Get(storage.DBAggregation), a.Logger)
 	s.cvRepo = repository.NewChannelVideoRepository(a.DM.Get(storage.DBAggregation), a.Logger)
+	s.activityStorageRepo = repository.NewActivityStorageRepository(a.DM.Get(storage.DBActivity), a.Logger)
 }
 
 // Process channel aggregator
@@ -52,6 +54,7 @@ func (s Summarize) Process(u sModel.User, isAuthenticated bool, token core.Token
 		s.Summarize.Language = channel.Language
 		s.Summarize.AirTime = s.cvRepo.GetAirTime(channel.ChannelID, queryFilter)
 		s.Summarize.PrimaryGame = s.caService.GetPrimaryGame(channel.ChannelID, queryFilter, s.cvRepo).Name
+		s.Summarize.SecondsWatched = s.activityStorageRepo.GetWatchedTime(channel.Name, queryFilter)
 
 		err := s.a.DM.Get(storage.DBAggregation).Gorm.Create(&s.Summarize).Error
 

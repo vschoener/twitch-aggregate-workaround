@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.5.5-10.3.2-MariaDB-10.3.2+maria~jessie)
 # Database: ws_aggregate_storage
-# Generation Time: 2017-11-27 15:44:58 +0000
+# Generation Time: 2017-11-30 15:14:33 +0000
 # ************************************************************
 
 
@@ -137,15 +137,15 @@ CREATE TABLE `summarizes` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `meta_date_add` timestamp NULL DEFAULT current_timestamp(),
   `channel_id` bigint(11) DEFAULT NULL,
-  `channel_name` varchar(32) CHARACTER SET latin1 DEFAULT NULL,
+  `channel_name` varchar(32) DEFAULT NULL,
   `avg_ccv` int(11) DEFAULT NULL,
   `max_ccv` int(11) DEFAULT NULL,
   `air_time` int(11) DEFAULT NULL,
-  `hours_watched` int(11) DEFAULT NULL,
-  `primary_game` varchar(64) CHARACTER SET latin1 DEFAULT NULL,
+  `seconds_watched` int(11) DEFAULT NULL,
+  `primary_game` varchar(64) DEFAULT NULL,
   `partner` tinyint(4) DEFAULT NULL,
   `mature` tinyint(11) DEFAULT NULL,
-  `language` varchar(32) CHARACTER SET latin1 DEFAULT NULL,
+  `language` varchar(32) DEFAULT NULL,
   `views` bigint(20) DEFAULT NULL,
   `followers` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
