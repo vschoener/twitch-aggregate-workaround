@@ -28,7 +28,7 @@ func NewChannelVideoRepository(db *storage.Database, l logger.Logger) VideoRepos
 func (r VideoRepository) RegisterVideoToChannel(channelID int64, videos []model.Video) bool {
 
 	for _, video := range videos {
-		video.MetalChannelID = channelID
+		video.MetaChannelID = channelID
 		newVideo := model.Video{}
 		newVideo.MetaDateAdd = time.Now()
 		err := r.Database.Gorm.
@@ -55,11 +55,11 @@ func (r VideoRepository) GetAirTime(channelID int64, queryFilter storage.QueryFi
 	db := r.Database.Gorm.
 		Model(&model.Video{}).
 		Select("SUM(length) total").
-		Where(`channel_id = ?
+		Where(`meta_channel_id = ?
 			AND broadcast_type = ?`,
 			channelID,
 			"archive",
-		).Group("channel_id")
+		).Group("meta_channel_id")
 
 	queryFilter.DateField = "recorded_at"
 	r.applyFilter(db, queryFilter)
@@ -86,7 +86,7 @@ func (r VideoRepository) GetGames(channelID int64, queryFilter storage.QueryFilt
 	db := r.Database.Gorm.
 		Model(&model.Video{}).
 		Select("game as Name, Count(*) TotalPlayed").
-		Where(`channel_id = ?
+		Where(`meta_channel_id = ?
 			AND broadcast_type = ?`,
 			channelID,
 			"archive",

@@ -13,7 +13,7 @@ const (
 type Video struct {
 	MetaID          int64 `gorm:"primary_key:true"`
 	MetaDateAdd     time.Time
-	MetalChannelID  int64
+	MetaChannelID   int64
 	ID              string `gorm:"unique_index"`
 	Title           string
 	Description     string `gorm:"type:TEXT"`

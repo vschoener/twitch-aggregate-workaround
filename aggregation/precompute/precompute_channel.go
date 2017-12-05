@@ -1,4 +1,4 @@
-package aggregation
+package precompute
 
 import (
 	"time"
@@ -10,8 +10,8 @@ import (
 	"github.com/wonderstream/twitch/storage/repository"
 )
 
-// PrecomputeChannel aggregation contains requirement to handle the process
-type PrecomputeChannel struct {
+// Channel aggregation contains requirement to handle the process
+type Channel struct {
 	Loader              *service.Loader
 	sRepo               repository.PrecomputeChannelRepository
 	cRepo               repository.ChannelRepository
@@ -22,7 +22,7 @@ type PrecomputeChannel struct {
 }
 
 // Initialize channel aggregator
-func (s *PrecomputeChannel) Initialize(loader *service.Loader) {
+func (s *Channel) Initialize(loader *service.Loader) {
 	s.Loader = loader
 	s.sRepo = repository.NewPrecomputeChannelRepository(s.Loader.DatabaseManager.Get(storage.DBAggregation), s.Loader.Logger)
 	s.cRepo = repository.NewChannelRepository(s.Loader.DatabaseManager.Get(storage.DBAggregation), s.Loader.Logger)
@@ -31,7 +31,7 @@ func (s *PrecomputeChannel) Initialize(loader *service.Loader) {
 }
 
 // Process channel aggregator
-func (s PrecomputeChannel) Process(u sModel.User, token core.TokenResponse) {
+func (s Channel) Process(u sModel.User, token core.TokenResponse) {
 
 	dateStart := time.Date(2017, time.October, 20, 0, 0, 0, 0, time.UTC)
 	dateEnd := time.Date(2017, time.October, 21, 0, 0, 0, 0, time.UTC)
@@ -40,7 +40,7 @@ func (s PrecomputeChannel) Process(u sModel.User, token core.TokenResponse) {
 		DateEnd:   &dateEnd,
 	}
 	if channel, found := s.cRepo.GetLastRecorded(u.Name); found {
-		s.PrecomputedChannel.MetaDateAdd = time.Now()
+		s.PrecomputedChannel.DateAdd = time.Now()
 		s.PrecomputedChannel.Followers = channel.Followers
 		s.PrecomputedChannel.Views = channel.Views
 		s.PrecomputedChannel.ChannelID = channel.ID
@@ -61,6 +61,6 @@ func (s PrecomputeChannel) Process(u sModel.User, token core.TokenResponse) {
 }
 
 // End channel aggregator
-func (s PrecomputeChannel) End() {
+func (s Channel) End() {
 
 }

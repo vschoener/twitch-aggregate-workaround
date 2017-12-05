@@ -12,8 +12,8 @@ const (
 // PrecomputedChannel mapping table
 type PrecomputedChannel struct {
 	ID             int64
-	MetaDateAdd    time.Time
-	ChannelID      int64
+	DateAdd        time.Time
+	ChannelID      int64 `gorm:"ForeignKey:Videos"`
 	ChannelName    string
 	AVGCCV         int64 `gorm:"column:avg_ccv"`
 	MaxCCV         int64

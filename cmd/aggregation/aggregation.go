@@ -5,6 +5,7 @@ import (
 
 	"github.com/wonderstream/twitch/aggregation"
 	"github.com/wonderstream/twitch/aggregation/populate"
+	"github.com/wonderstream/twitch/aggregation/precompute"
 	"github.com/wonderstream/twitch/aggregation/service"
 )
 
@@ -21,6 +22,7 @@ func main() {
 			&populate.Channel{},
 			&populate.User{},
 			// &populate.Stream{},
+			&precompute.Channel{},
 		},
 	}
 
