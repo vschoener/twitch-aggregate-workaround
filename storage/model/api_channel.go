@@ -13,12 +13,12 @@ const (
 type Channel struct {
 	MetaID               int64 `gorm:"primary_key:true"`
 	MetaDateAdd          time.Time
-	ID                   int64
+	ID                   int64 `gorm:"index"`
 	Name                 string
 	Description          string `gorm:"type:TEXT"`
 	Email                string
 	URL                  string
-	Videos               []Video
+	Videos               []Video `gorm:"ForeignKey:MetalChannelID;AssociationForeignKey:ID"`
 	Mature               bool
 	Status               string
 	BroadcasterLanguage  string

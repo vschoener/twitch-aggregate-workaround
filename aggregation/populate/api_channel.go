@@ -95,5 +95,5 @@ func (c Channel) GetVideosStream(r *twCore.Request, userID int64) {
 		log.Println("Link videos", video)
 		sVideos = append(sVideos, transformer.TransformCoreVideoToStorageVideo(video))
 	}
-	//c.VideoRepository.(userID)
+	c.VideoRepository.RegisterVideoToChannel(userID, sVideos)
 }

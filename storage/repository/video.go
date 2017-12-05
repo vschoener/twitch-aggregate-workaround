@@ -2,6 +2,7 @@ package repository
 
 import (
 	"log"
+	"time"
 
 	"github.com/wonderstream/twitch/logger"
 	"github.com/wonderstream/twitch/storage"
@@ -23,19 +24,26 @@ func NewChannelVideoRepository(db *storage.Database, l logger.Logger) VideoRepos
 	return r
 }
 
-// // RegisterVideoToChannel inserts or updates video information to the channel ID
-// func (r VideoRepository) RegisterVideoToChannel(channelID int64, video model.Video) bool {
-// 	video.ChannelID = channelID
-// 	newVideo := model.Video{}
-// 	newVideo.MetaDateAdd = time.Now()
-// 	err := r.Database.Gorm.
-// 		Where(model.Video{ID: video.ID}).
-// 		Assign(video).
-// 		FirstOrCreate(&newVideo).
-// 		Error
-//
-// 	return r.CheckErr(err)
-// }
+// RegisterVideoToChannel inserts or updates video information to the channel ID
+func (r VideoRepository) RegisterVideoToChannel(channelID int64, videos []model.Video) bool {
+
+	for _, video := range videos {
+		video.MetalChannelID = channelID
+		newVideo := model.Video{}
+		newVideo.MetaDateAdd = time.Now()
+		err := r.Database.Gorm.
+			Where(model.Video{ID: video.ID}).
+			Assign(video).
+			FirstOrCreate(&newVideo).
+			Error
+
+		if err != nil {
+			r.CheckErr(err)
+		}
+	}
+
+	return true
+}
 
 // GetAirTime returns the total stream in seconds
 func (r VideoRepository) GetAirTime(channelID int64, queryFilter storage.QueryFilter) int64 {
