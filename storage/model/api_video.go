@@ -5,22 +5,22 @@ import (
 )
 
 const (
-	// ChannelVideoTable database table
-	ChannelVideoTable = "channel_videos"
+	// VideoTable database table
+	VideoTable = "api_videos"
 )
 
-// ChannelVideo mapping table
-type ChannelVideo struct {
-	ID              int64
+// Video mapping table
+type Video struct {
+	MetaID          int64 `gorm:"primary_key:true"`
 	MetaDateAdd     time.Time
-	ChannelID       int64
+	ID              string `gorm:"unique_index"`
 	Title           string
-	Description     string
-	DescriptionHTML string
+	Description     string `gorm:"type:TEXT"`
+	DescriptionHTML string `gorm:"type:TEXT"`
 	BroadcastID     int64
 	BroadcastType   string
 	Status          string
-	TagList         string
+	TagList         string `gorm:"type:TEXT"`
 	Views           int64
 	URL             string
 	Language        string
@@ -28,8 +28,12 @@ type ChannelVideo struct {
 	Viewable        string
 	ViewableAt      string
 	PublishedAt     time.Time
-	VideoID         string
 	RecordedAt      time.Time
 	Game            string
 	Length          int64
+}
+
+// TableName set be singular
+func (Video) TableName() string {
+	return VideoTable
 }

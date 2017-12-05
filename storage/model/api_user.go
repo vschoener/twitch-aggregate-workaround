@@ -4,20 +4,25 @@ import "time"
 
 const (
 	// UserTable database table
-	UserTable = "users"
+	UserTable = "api_users"
 )
 
 // User is the storage manager
 type User struct {
-	ID             uint `gorm:"primary_key"`
+	MetaID         uint `gorm:"primary_key"`
 	MetaDateAdd    time.Time
 	MetaDateUpdate time.Time
+	ID             int64 `gorm:"unique_index"`
 	DisplayName    string
-	UserID         int64 `gorm:"unique_index"`
 	Name           string
 	Type           string
-	Bio            string
+	Bio            string `gorm:"type:TEXT"`
 	Logo           string
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
+}
+
+// TableName set be singular
+func (User) TableName() string {
+	return UserTable
 }

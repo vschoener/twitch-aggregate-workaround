@@ -5,12 +5,12 @@ import (
 )
 
 const (
-	// SummarizeTable database table
-	SummarizeTable = "summarizes"
+	// PrecomputedChannelTable database table
+	PrecomputedChannelTable = "precomputed_channels"
 )
 
-// Summarize mapping table
-type Summarize struct {
+// PrecomputedChannel mapping table
+type PrecomputedChannel struct {
 	ID             int64
 	MetaDateAdd    time.Time
 	ChannelID      int64
@@ -25,4 +25,9 @@ type Summarize struct {
 	Language       string
 	Views          int64
 	Followers      int64
+}
+
+// TableName set be singular
+func (PrecomputedChannel) TableName() string {
+	return PrecomputedChannelTable
 }

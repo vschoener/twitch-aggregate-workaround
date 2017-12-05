@@ -5,13 +5,13 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/wonderstream/twitch/aggregation"
 	"github.com/wonderstream/twitch/core"
-	"github.com/wonderstream/twitch/core/service"
+	coreService "github.com/wonderstream/twitch/core/service"
 	"github.com/wonderstream/twitch/logger"
 	"github.com/wonderstream/twitch/storage"
 	"github.com/wonderstream/twitch/storage/repository"
 	"github.com/wonderstream/twitch/storage/transformer"
+	"github.com/wonderstream/twitch/webserver/service"
 )
 
 // HTTPHandler adapter
@@ -91,19 +91,24 @@ func (r Router) addChannel(w http.ResponseWriter, req *http.Request) {
 		req.ParseForm()
 		s.ChannelName = req.Form.Get("channel")
 		if len(s.ChannelName) > 0 {
-			twitchRequest := core.NewRequest(r.oauth2)
+			twitchRequest := core.NewRequest(r.oauth2, nil)
 			twitchRequest.Logger = r.logger.Share()
 			twitchRequest.Logger.SetPrefix("LIBRARY")
 			userRepository := repository.NewUserRepository(r.db, r.logger)
-			userService := service.NewUserService()
-			user := userService.GetByName(s.ChannelName, twitchRequest)
-			state := userRepository.StoreUser(transformer.TransformCoreUserToStorageUser(user))
+			userService := coreService.NewUserService()
+			user, err := userService.GetByName(s.ChannelName, twitchRequest)
 
-			if state {
-				s.Success = "User has been added / updated"
-				s.ChannelName = ""
+			if err != nil {
+				s.Error = "User does not exist"
 			} else {
-				s.Error = "User has not been added"
+				state := userRepository.StoreUser(transformer.TransformCoreUserToStorageUser(user))
+
+				if state {
+					s.Success = "User has been added / updated"
+					s.ChannelName = ""
+				} else {
+					s.Error = "User has not been added"
+				}
 			}
 		}
 	}
@@ -114,7 +119,7 @@ func (r Router) addChannel(w http.ResponseWriter, req *http.Request) {
 
 // responseOAuthTwitch
 func (r Router) responseOAuthTwitch(w http.ResponseWriter, req *http.Request) {
-	authAggregation := aggregation.NewAuthAggregation(r.oauth2, r.db)
+	authAggregation := service.NewAuthService(r.oauth2, r.db)
 	err := authAggregation.HandleUserAccessTokenHTTPRequest(w, req, r.logger)
 
 	if err != nil {

@@ -37,7 +37,7 @@ func (r UserRepository) StoreUser(user model.User) bool {
 	newUser.MetaDateAdd = time.Now()
 	user.MetaDateUpdate = time.Now()
 	err := r.Database.Gorm.
-		Where(model.User{UserID: user.UserID}).
+		Where(model.User{ID: user.ID}).
 		Assign(user).
 		FirstOrCreate(&newUser).
 		Error

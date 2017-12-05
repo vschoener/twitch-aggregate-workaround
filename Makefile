@@ -31,6 +31,9 @@ exec_test:
 exec_auth:
 	$(GOPATH)/bin/auth
 
+exec_migrate:
+	$(GOPATH)/bin/migrate
+
 goinstall:
 	go get gopkg.in/yaml.v2
 	go get github.com/bsphere/le_go

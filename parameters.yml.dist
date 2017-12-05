@@ -16,7 +16,6 @@ twitch:
         url: https://api.twitch.tv/kraken
         headers:
             Accept: "application/vnd.twitchtv.v5+json"
-    app_name: aggregation
 
 database:
     aggregation:

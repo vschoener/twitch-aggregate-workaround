@@ -6,32 +6,39 @@ import (
 
 const (
 	// ChannelTable database table
-	ChannelTable = "channels"
+	ChannelTable = "api_channels"
 )
 
 // Channel mapping table
 type Channel struct {
-	ID                   int64
+	MetaID               int64 `gorm:"primary_key:true"`
 	MetaDateAdd          time.Time
+	ID                   int64
+	Name                 string
+	Description          string `gorm:"type:TEXT"`
+	Email                string
+	URL                  string
+	Videos               []Video
 	Mature               bool
 	Status               string
 	BroadcasterLanguage  string
 	DisplayName          string
 	Game                 string
 	Language             string
-	ChannelID            int64
-	Name                 string
-	CreatedAt            string
-	UpdatedAt            string
+	CreatedAt            time.Time
+	UpdatedAt            time.Time
 	Partner              bool
 	Logo                 string
 	VideoBanner          string
 	ProfileBanner        string
 	ProfileBannerBGColor string
-	URL                  string
 	Views                int64
 	Followers            int64
 	BroadcasterType      string
 	StreamKey            string
-	Email                string
+}
+
+// TableName set be singular
+func (Channel) TableName() string {
+	return ChannelTable
 }

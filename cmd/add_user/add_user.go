@@ -46,7 +46,7 @@ func main() {
 	oauth2Logger.SetPrefix("LIBRARY")
 	oauth2.SetLogger(oauth2Logger)
 
-	twitchRequest := core.NewRequest(oauth2)
+	twitchRequest := core.NewRequest(oauth2, nil)
 	twitchRequest.Logger = l.Share()
 	twitchRequest.Logger.SetPrefix("LIBRARY")
 
@@ -54,13 +54,17 @@ func main() {
 	userService := service.NewUserService()
 
 	for _, user := range args {
-		twUser := userService.GetByName(user, twitchRequest)
-		state := userRepository.StoreUser(transformer.TransformCoreUserToStorageUser(twUser))
-
-		if state {
-			l.Log(fmt.Sprintf("User %s added", user))
+		twUser, err := userService.GetByName(user, twitchRequest)
+		if nil == err {
+			l.Log("User found")
+			state := userRepository.StoreUser(transformer.TransformCoreUserToStorageUser(twUser))
+			if state {
+				l.Log("User added")
+			} else {
+				l.Log("User not added")
+			}
 		} else {
-			l.Log(fmt.Sprintf("User %s not added", user))
+			l.Log("User not found... Aborted")
 		}
 	}
 }

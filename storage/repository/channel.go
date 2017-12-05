@@ -35,7 +35,7 @@ func (r ChannelRepository) StoreChannel(channel model.Channel) bool {
 func (r ChannelRepository) GetLastChannelsRecord() []model.Channel {
 	channels := []model.Channel{}
 	r.Database.Gorm.
-		Group("channel_id").
+		Group("id").
 		Order("id DESC").
 		Find(&channels)
 

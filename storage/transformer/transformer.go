@@ -21,26 +21,27 @@ func TransformCoreChannelToStorageChannel(c model.Channel) storageModel.Channel 
 		DisplayName:          c.DisplayName,
 		Game:                 c.Game,
 		Language:             c.Language,
-		ChannelID:            c.IDTwitch,
+		ID:                   c.ID,
 		Name:                 c.Name,
 		CreatedAt:            c.CreatedAt,
 		UpdatedAt:            c.UpdatedAt,
 		Partner:              c.Partner,
 		VideoBanner:          c.VideoBanner,
 		ProfileBanner:        c.ProfileBanner,
-		ProfileBannerBGColor: c.ProfileBannerBGColor,
+		ProfileBannerBGColor: c.ProfileBannerBackgroundColor,
 		URL:                  c.URL,
 		Views:                c.Views,
 		Followers:            c.Followers,
 		BroadcasterType:      c.BroadcasterType,
 		StreamKey:            c.StreamKey,
 		Email:                c.Email,
+		Description:          c.Description,
 	}
 }
 
 // TransformCoreVideoToStorageVideo transform model from Core to Storage
-func TransformCoreVideoToStorageVideo(v model.Video) storageModel.ChannelVideo {
-	return storageModel.ChannelVideo{
+func TransformCoreVideoToStorageVideo(v model.Video) storageModel.Video {
+	return storageModel.Video{
 		Title:           v.Title,
 		Description:     v.Description,
 		DescriptionHTML: v.DescriptionHTML,
@@ -55,7 +56,7 @@ func TransformCoreVideoToStorageVideo(v model.Video) storageModel.ChannelVideo {
 		Viewable:        v.Viewable,
 		ViewableAt:      v.ViewableAt,
 		PublishedAt:     v.PublishedAt,
-		VideoID:         v.VideoID,
+		ID:              v.VideoID,
 		RecordedAt:      v.RecordedAt,
 		Game:            v.Game,
 		Length:          v.Length,
@@ -66,7 +67,7 @@ func TransformCoreVideoToStorageVideo(v model.Video) storageModel.ChannelVideo {
 func TransformCoreUserToStorageUser(u model.User) storageModel.User {
 	return storageModel.User{
 		DisplayName: u.DisplayName,
-		UserID:      u.UserID,
+		ID:          u.ID,
 		Name:        u.Name,
 		Type:        u.Type,
 		Bio:         u.Bio,

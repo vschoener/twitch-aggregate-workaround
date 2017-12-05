@@ -1,4 +1,4 @@
-package aggregation
+package service
 
 import (
 	"errors"
@@ -18,8 +18,8 @@ type Auth struct {
 	db     *storage.Database
 }
 
-// NewAuthAggregation constructor
-func NewAuthAggregation(oauth2 *core.OAuth2, db *storage.Database) *Auth {
+// NewAuthService constructor
+func NewAuthService(oauth2 *core.OAuth2, db *storage.Database) *Auth {
 	return &Auth{
 		oauth2: oauth2,
 		db:     db,
@@ -48,7 +48,7 @@ func (a *Auth) HandleUserAccessTokenHTTPRequest(w http.ResponseWriter, twRequest
 		return errors.New("Token empty, please ask for a new authorization code")
 	}
 
-	twitchRequest := core.NewAccessTokenRequest(a.oauth2, token)
+	twitchRequest := core.NewRequest(a.oauth2, &token)
 	twitchRequest.Logger = logger.Share()
 	twitchRequest.Logger.SetPrefix("LIBRARY")
 
@@ -63,13 +63,17 @@ func (a *Auth) HandleUserAccessTokenHTTPRequest(w http.ResponseWriter, twRequest
 		return err
 	}
 
-	user := userService.GetByName(channel.Name, twitchRequest)
+	user, err := userService.GetByName(channel.Name, twitchRequest)
+	if err != nil {
+		return err
+	}
 
 	sChannel := transformer.TransformCoreChannelToStorageChannel(channel)
 	credential := transformer.TransformCoreTokenResponseToStorageCredential(token)
 	sUser := transformer.TransformCoreUserToStorageUser(user)
 
-	credential.ChannelID = sChannel.ChannelID
+	// TODO: Review channel ID Auth
+	credential.ChannelID = sChannel.ID
 	credential.ChannelName = sChannel.Name
 	credential.Email = sChannel.Email
 	if false == credentialRepository.StoreCredential(credential) {

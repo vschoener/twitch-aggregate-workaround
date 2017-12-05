@@ -41,6 +41,5 @@ func main() {
 		Repository: repository.NewRepository(database, l),
 	}
 	sToken := transformer.TransformCoreTokenResponseToStorageCredential(token)
-	sToken.AppName = oauth2.AppName
 	r.StoreCredential(sToken)
 }

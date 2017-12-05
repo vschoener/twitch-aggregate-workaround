@@ -22,18 +22,23 @@ type TokenResponse struct {
 	Scopes       []string `json:"scope"`
 }
 
+// IsAuthenticated checks if the structure has been at least initialized
+func (t TokenResponse) IsAuthenticated() bool {
+	return len(t.AccessToken) > 0
+}
+
 // IsTokenValid checks if the token is still valide
-func (s TokenResponse) IsTokenValid(date time.Time) bool {
-	if s.ExpiresIn == 0 {
+func (t TokenResponse) IsTokenValid(date time.Time) bool {
+	if t.ExpiresIn == 0 {
 		return true
 	}
 
-	return date.Add(time.Second * time.Duration(s.ExpiresIn)).Before(time.Now())
+	return date.Add(time.Second * time.Duration(t.ExpiresIn)).Before(time.Now())
 }
 
 // FormatScopes return the proper scope format
-func (s TokenResponse) FormatScopes() string {
-	return strings.Join(s.Scopes, " ")
+func (t TokenResponse) FormatScopes() string {
+	return strings.Join(t.Scopes, " ")
 }
 
 const (
@@ -90,7 +95,7 @@ func (oauth2 *OAuth2) RequestToken(values map[string]string) (TokenResponse, err
 	values["client_id"] = oauth2.ClientID
 	values["client_secret"] = oauth2.ClientSecret
 
-	request := NewRequest(oauth2)
+	request := NewRequest(oauth2, nil)
 	request.Logger = oauth2.Logger
 	request.SetPost(values, "application/json")
 	err := request.SendRequest("/oauth2/token", &tokenResponse)

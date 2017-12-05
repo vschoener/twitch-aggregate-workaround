@@ -2,51 +2,50 @@ package repository
 
 import (
 	"log"
-	"time"
 
 	"github.com/wonderstream/twitch/logger"
 	"github.com/wonderstream/twitch/storage"
 	"github.com/wonderstream/twitch/storage/model"
 )
 
-// ChannelVideoRepository handles channel video database query
-type ChannelVideoRepository struct {
+// VideoRepository handles channel video database query
+type VideoRepository struct {
 	*Repository
 }
 
 // NewChannelVideoRepository return a credential repository
-func NewChannelVideoRepository(db *storage.Database, l logger.Logger) ChannelVideoRepository {
+func NewChannelVideoRepository(db *storage.Database, l logger.Logger) VideoRepository {
 	commonRepository := NewRepository(db, l)
-	r := ChannelVideoRepository{
+	r := VideoRepository{
 		Repository: commonRepository,
 	}
 
 	return r
 }
 
-// RegisterVideoToChannel inserts or updates video information to the channel ID
-func (r ChannelVideoRepository) RegisterVideoToChannel(channelID int64, video model.ChannelVideo) bool {
-	video.ChannelID = channelID
-	newVideo := model.ChannelVideo{}
-	newVideo.MetaDateAdd = time.Now()
-	err := r.Database.Gorm.
-		Where(model.ChannelVideo{VideoID: video.VideoID}).
-		Assign(video).
-		FirstOrCreate(&newVideo).
-		Error
-
-	return r.CheckErr(err)
-}
+// // RegisterVideoToChannel inserts or updates video information to the channel ID
+// func (r VideoRepository) RegisterVideoToChannel(channelID int64, video model.Video) bool {
+// 	video.ChannelID = channelID
+// 	newVideo := model.Video{}
+// 	newVideo.MetaDateAdd = time.Now()
+// 	err := r.Database.Gorm.
+// 		Where(model.Video{ID: video.ID}).
+// 		Assign(video).
+// 		FirstOrCreate(&newVideo).
+// 		Error
+//
+// 	return r.CheckErr(err)
+// }
 
 // GetAirTime returns the total stream in seconds
-func (r ChannelVideoRepository) GetAirTime(channelID int64, queryFilter storage.QueryFilter) int64 {
+func (r VideoRepository) GetAirTime(channelID int64, queryFilter storage.QueryFilter) int64 {
 	type Result struct {
 		Total int64
 	}
 
 	result := Result{}
 	db := r.Database.Gorm.
-		Model(&model.ChannelVideo{}).
+		Model(&model.Video{}).
 		Select("SUM(length) total").
 		Where(`channel_id = ?
 			AND broadcast_type = ?`,
@@ -73,11 +72,11 @@ type StreamedGame struct {
 }
 
 // GetGames played
-func (r ChannelVideoRepository) GetGames(channelID int64, queryFilter storage.QueryFilter) []StreamedGame {
+func (r VideoRepository) GetGames(channelID int64, queryFilter storage.QueryFilter) []StreamedGame {
 	games := []StreamedGame{}
 
 	db := r.Database.Gorm.
-		Model(&model.ChannelVideo{}).
+		Model(&model.Video{}).
 		Select("game as Name, Count(*) TotalPlayed").
 		Where(`channel_id = ?
 			AND broadcast_type = ?`,

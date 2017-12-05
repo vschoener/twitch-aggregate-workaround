@@ -30,15 +30,15 @@ func (f *FakeLoader) Load(path string, definition interface{}) error {
 			ErrorRedirectURL:   "http://redirect.error",
 			SuccessRedirectURL: "http://redirect.success",
 		},
-		Databases: map[DBName]storage.DatabaseSettings{
-			DBAggregation: storage.DatabaseSettings{
+		Databases: map[storage.DBName]storage.DatabaseSettings{
+			storage.DBAggregation: storage.DatabaseSettings{
 				User:     "john",
 				Password: "doe42",
 				URL:      "host",
 				Port:     "42",
 				Name:     "database",
 			},
-			DBActivity: storage.DatabaseSettings{
+			storage.DBActivity: storage.DatabaseSettings{
 				User:     "johnA",
 				Password: "doe42A",
 				URL:      "hostA",
@@ -83,14 +83,14 @@ func TestGetDB(t *testing.T) {
 	credential := NewCredential(fakeLoader, "")
 	credential.LoadSetting()
 	credential.AppSetting = fakeLoader.AppSetting
-	DBSetting := credential.GetDB(DBAggregation)
+	DBSetting := credential.GetDB(storage.DBAggregation)
 
 	assert.Equal(t, "john", DBSetting.User, "They should be equal")
 	assert.Equal(t, "doe42", DBSetting.Password, "They should be equal")
 	assert.Equal(t, "host", DBSetting.URL, "They should be equal")
 	assert.Equal(t, "database", DBSetting.Name, "They should be equal")
 
-	DBSetting = credential.GetDB(DBActivity)
+	DBSetting = credential.GetDB(storage.DBActivity)
 
 	assert.Equal(t, "johnA", DBSetting.User, "They should be equal")
 	assert.Equal(t, "doe42A", DBSetting.Password, "They should be equal")

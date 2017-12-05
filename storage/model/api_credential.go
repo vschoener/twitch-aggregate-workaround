@@ -6,18 +6,17 @@ import (
 
 const (
 	// CredentialTable database table
-	CredentialTable = "credentials"
+	CredentialTable = "api_credentials"
 )
 
 // Credential map the database table
 type Credential struct {
 	ID             int64
-	UID            string `gorm:"column:uid"`
+	Channel        Channel
 	MetaDateAdd    time.Time
 	MetaDateUpdate time.Time
-	AppName        string
 	ChannelName    string
-	ChannelID      int64
+	ChannelID      int64 `gorm:"unique_index"`
 	Email          string
 	AccessToken    string
 	RefreshToken   string
@@ -28,4 +27,9 @@ type Credential struct {
 // IsSet is a shortcut function to know if the credential is Found or Set
 func (c Credential) IsSet() bool {
 	return c.ID > 0
+}
+
+// TableName set be singular
+func (Credential) TableName() string {
+	return CredentialTable
 }

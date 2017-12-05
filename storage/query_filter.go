@@ -9,6 +9,11 @@ const (
 
 // QueryFilter used to filter repository query
 type QueryFilter struct {
+	Ranges []struct {
+		DateField string
+		DateStart *time.Time
+		DateEnd   *time.Time
+	}
 	DateStart *time.Time
 	DateEnd   *time.Time
 	DateField string

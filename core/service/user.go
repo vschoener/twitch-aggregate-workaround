@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -33,13 +34,16 @@ func (s UserService) GetByChanelNames(channelNames []string, r *core.Request) Ge
 }
 
 // GetByName retrieve user information from channel or user name
-func (s UserService) GetByName(u string, r *core.Request) model.User {
+func (s UserService) GetByName(u string, r *core.Request) (model.User, error) {
+	var user model.User
+	var err error
 	result := s.GetByChanelNames([]string{u}, r)
 
-	user := model.User{}
 	if result.Total == 1 {
 		user = result.Users[0]
+	} else {
+		err = errors.New("User not found")
 	}
 
-	return user
+	return user, err
 }

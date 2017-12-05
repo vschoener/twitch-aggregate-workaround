@@ -14,7 +14,7 @@ type Users struct {
 // User information
 type User struct {
 	DisplayName string    `json:"display_name"`
-	UserID      int64     `json:"_id,string"`
+	ID          int64     `json:"_id,string"`
 	Name        string    `json:"name"`
 	Type        string    `json:"type"`
 	Bio         string    `json:"bio"`

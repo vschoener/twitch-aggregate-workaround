@@ -12,7 +12,6 @@ type TwitchSettings struct {
 	RedirectURL           string `yaml:"redirectURL"`
 	TwitchRequestSettings `yaml:"request"`
 	Scopes                []string `ymal:"scopes"`
-	AppName               string   `yaml:"app_name"`
 
 	// Extra settings for server application
 	ErrorRedirectURL   string `yaml:"errorRedirectURL"`
@@ -32,8 +31,6 @@ func (ts TwitchSettings) Check() error {
 		err = errors.New("Twitch Request URL is required")
 	} else if len(ts.Scopes) == 0 {
 		err = errors.New("Scopes are required")
-	} else if len(ts.AppName) == 0 {
-		err = errors.New("App name is required")
 	}
 
 	return err

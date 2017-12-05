@@ -32,12 +32,15 @@ func (r *Repository) CheckErr(err error) bool {
 }
 
 func (r *Repository) applyFilter(db *gorm.DB, filter storage.QueryFilter) *gorm.DB {
-	if nil != filter.DateStart {
-		db = db.Where(filter.DateField+" >= ?", filter.DateStart.Format(storage.SIMPLEFORMATSQL))
+	for _, dateRange := range filter.Ranges {
+		if nil != filter.DateStart {
+			db = db.Where(dateRange.DateField+" >= ?", dateRange.DateStart.Format(storage.SIMPLEFORMATSQL))
+		}
+		if nil != filter.DateEnd {
+			db = db.Where(dateRange.DateField+" <= DATE_ADD(?, INTERVAL 1 DAY)", dateRange.DateEnd.Format(storage.SIMPLEFORMATSQL))
+		}
 	}
-	if nil != filter.DateEnd {
-		db = db.Where(filter.DateField+" <= DATE_ADD(?, INTERVAL 1 DAY)", filter.DateEnd.Format(storage.SIMPLEFORMATSQL))
-	}
+
 	if nil != filter.Exclude && len(filter.Exclude) > 0 {
 		for field, values := range filter.Exclude {
 			db = db.Where(field+" NOT IN (?)", values)

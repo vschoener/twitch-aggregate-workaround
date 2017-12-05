@@ -21,7 +21,7 @@ type Request struct {
 }
 
 // NewRequest constructor to build a Request without any User Token information
-func NewRequest(oauth2 *OAuth2) *Request {
+func NewRequest(oauth2 *OAuth2, t *TokenResponse) *Request {
 	request := &Request{
 		BaseURL: oauth2.URL,
 		Method:  http.MethodGet,
@@ -32,14 +32,9 @@ func NewRequest(oauth2 *OAuth2) *Request {
 	request.Headers["Accept"] = oauth2.TwitchSettings.Headers["Accept"]
 	request.Headers["Client-ID"] = oauth2.TwitchSettings.ClientID
 
-	return request
-}
-
-// NewAccessTokenRequest constructor to build Request containing User Token
-// information
-func NewAccessTokenRequest(oauth2 *OAuth2, t TokenResponse) *Request {
-	request := NewRequest(oauth2)
-	request.Headers["Authorization"] = "OAuth " + t.AccessToken
+	if nil != t && t.IsAuthenticated() {
+		request.Headers["Authorization"] = "OAuth " + t.AccessToken
+	}
 
 	return request
 }

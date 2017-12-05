@@ -15,7 +15,7 @@ func NewChannelService() *ChannelService {
 }
 
 // GetPrimaryGame returns the game mostly played
-func (s ChannelService) GetPrimaryGame(channelID int64, f storage.QueryFilter, cvr repository.ChannelVideoRepository) repository.StreamedGame {
+func (s ChannelService) GetPrimaryGame(channelID int64, f storage.QueryFilter, cvr repository.VideoRepository) repository.StreamedGame {
 	primaryGameStreamed := repository.StreamedGame{}
 	games := cvr.GetGames(channelID, f)
 
