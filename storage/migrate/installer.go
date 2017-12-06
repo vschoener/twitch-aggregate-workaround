@@ -17,6 +17,8 @@ type Migrate struct {
 // Options for migration
 type Options struct {
 	DropIfInstall bool
+	IsInstall     bool
+	IsUpdate      bool
 }
 
 // TableInfo contains table information for the install / migration
@@ -58,6 +60,13 @@ func (m Migrate) installTables(tables []TableInfo) {
 
 }
 
+func (m Migrate) updateTables(tables []TableInfo) {
+	for _, table := range tables {
+		log.Println(fmt.Sprintf("Migrating %s ", table.Name))
+		m.DB.Gorm.AutoMigrate(table.Model)
+	}
+}
+
 // Install will start the install database process
 func (m Migrate) Install() {
 
@@ -95,5 +104,11 @@ func (m Migrate) Install() {
 		},
 	}
 
-	m.installTables(tables)
+	if m.Options.IsInstall {
+		log.Println("Installing...")
+		m.installTables(tables)
+	} else {
+		log.Println("Updating...")
+		m.updateTables(tables)
+	}
 }

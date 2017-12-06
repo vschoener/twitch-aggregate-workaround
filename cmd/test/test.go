@@ -35,7 +35,10 @@ func main() {
 	r := repository.NewActivityStorageRepository(dm.Get(storage.DBActivity), l)
 	dateStart := time.Date(2017, time.November, 20, 0, 0, 0, 0, time.UTC)
 	filters := storage.QueryFilter{
-		DateStart: &dateStart,
+		DateFilter: storage.DateFilter{
+			DateField: "datetime",
+			DateStart: dateStart,
+		},
 		Exclude: map[string][]string{
 			"username": {"wondrlurker"},
 		},

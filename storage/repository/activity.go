@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"log"
 	"time"
 
 	"github.com/wonderstream/twitch/logger"
@@ -11,6 +12,19 @@ import (
 // ActivityStorageRepository handles channel database query
 type ActivityStorageRepository struct {
 	*Repository
+	cache         bool
+	CacheActivity CacheActivity
+}
+
+// CacheActivity used to manage cache for any query from this repository
+type CacheActivity struct {
+	Activities []model.Activity
+}
+
+// SetCacheSet is used to cache redundant data to avoid extra
+// process consumption
+func (r ActivityStorageRepository) SetCacheSet(state bool) {
+	r.cache = state
 }
 
 // NewActivityStorageRepository return a credential repository
@@ -73,4 +87,30 @@ func (r ActivityStorageRepository) GetWatchedTime(name string, filters storage.Q
 	}
 
 	return seconds
+}
+
+// GetUniqueViewers return a number of unique viewers from a channel
+func (r ActivityStorageRepository) GetUniqueViewers(name string, filters storage.QueryFilter) int64 {
+	type Result struct {
+		TotalUniqueViewers int64
+	}
+
+	result := Result{}
+	db := r.Database.Gorm.
+		Model(&model.Activity{}).
+		Select("COUNT(DISTINCT username) total_unique_viewers").
+		Where(`channel = ?`,
+			name,
+		).Order("username")
+
+	filters.DateField = "datetime"
+	db = r.applyFilter(db, filters)
+
+	err := db.Scan(&result).Error
+
+	if nil != err {
+		log.Println(err)
+	}
+
+	return result.TotalUniqueViewers
 }

@@ -7,16 +7,24 @@ const (
 	SIMPLEFORMATSQL = "2006-01-02"
 )
 
+// DateFilter provides fields to filter date
+type DateFilter struct {
+	DateField string
+	DateStart time.Time
+	DateEnd   time.Time
+}
+
+// UseDateField allows to change the date field used on the fly
+func (d DateFilter) UseDateField(name string) DateFilter {
+	d.DateField = name
+
+	return d
+}
+
 // QueryFilter used to filter repository query
 type QueryFilter struct {
-	Ranges []struct {
-		DateField string
-		DateStart *time.Time
-		DateEnd   *time.Time
-	}
-	DateStart *time.Time
-	DateEnd   *time.Time
-	DateField string
-	Exclude   map[string][]string
-	Include   map[string][]string
+	Ranges []DateFilter
+	DateFilter
+	Exclude map[string][]string
+	Include map[string][]string
 }

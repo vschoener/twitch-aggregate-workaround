@@ -15,16 +15,18 @@ import (
 type Options struct {
 	Install bool
 	Drop    bool
+	Update  bool
 }
 
 func checkArgs() *Options {
 	options := &Options{}
 
 	flag.BoolVar(&options.Install, "install", false, "Start install. It won't try anything if the table exists for example")
+	flag.BoolVar(&options.Update, "update", false, "Update structure if possible")
 	flag.BoolVar(&options.Drop, "drop", false, "Drop the table before creating it")
 	flag.Parse()
 
-	if options.Install == false {
+	if options.Install == false && options.Update == false {
 		flag.Usage()
 		return nil
 	}
@@ -52,6 +54,8 @@ func main() {
 		DB: dm.Get(storage.DBAggregation),
 		Options: migrate.Options{
 			DropIfInstall: options.Drop,
+			IsInstall:     options.Install,
+			IsUpdate:      options.Update,
 		},
 	}
 

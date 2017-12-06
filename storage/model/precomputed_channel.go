@@ -18,6 +18,7 @@ type PrecomputedChannel struct {
 	AVGCCV         int64 `gorm:"column:avg_ccv"`
 	MaxCCV         int64
 	AirTime        int64
+	UniqueViewers  int64
 	SecondsWatched int64
 	PrimaryGame    string
 	Partner        bool

@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"time"
+
 	"github.com/jinzhu/gorm"
 	"github.com/wonderstream/twitch/logger"
 	"github.com/wonderstream/twitch/storage"
@@ -31,14 +33,25 @@ func (r *Repository) CheckErr(err error) bool {
 	return true
 }
 
+func (r *Repository) applyDateFilter(db *gorm.DB, field string, start time.Time, end time.Time) *gorm.DB {
+	if !start.IsZero() {
+		db = db.Where(field+" >= ?", start.Format(storage.SIMPLEFORMATSQL))
+	}
+
+	if !end.IsZero() {
+		db = db.Where(field+" <= DATE_ADD(?, INTERVAL 1 DAY)", end.Format(storage.SIMPLEFORMATSQL))
+	}
+
+	return db
+}
+
 func (r *Repository) applyFilter(db *gorm.DB, filter storage.QueryFilter) *gorm.DB {
-	for _, dateRange := range filter.Ranges {
-		if nil != filter.DateStart {
-			db = db.Where(dateRange.DateField+" >= ?", dateRange.DateStart.Format(storage.SIMPLEFORMATSQL))
+	if len(filter.Ranges) > 0 {
+		for _, dateRange := range filter.Ranges {
+			db = r.applyDateFilter(db, dateRange.DateField, dateRange.DateStart, dateRange.DateEnd)
 		}
-		if nil != filter.DateEnd {
-			db = db.Where(dateRange.DateField+" <= DATE_ADD(?, INTERVAL 1 DAY)", dateRange.DateEnd.Format(storage.SIMPLEFORMATSQL))
-		}
+	} else {
+		db = r.applyDateFilter(db, filter.DateField, filter.DateStart, filter.DateEnd)
 	}
 
 	if nil != filter.Exclude && len(filter.Exclude) > 0 {
