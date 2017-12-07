@@ -5,6 +5,9 @@ import "time"
 const (
 	// SIMPLEFORMATSQL to format time.Time
 	SIMPLEFORMATSQL = "2006-01-02"
+
+	// SQLTimeFormatByMinute use as layout
+	SQLTimeFormatByMinute = SIMPLEFORMATSQL + " 15:04:00"
 )
 
 // DateFilter provides fields to filter date

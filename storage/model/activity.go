@@ -29,3 +29,14 @@ type Activity struct {
 func (Activity) TableName() string {
 	return ActivityTable
 }
+
+// HasOneOfType check if the activity match one of the list
+func (a Activity) HasOneOfType(types []string) bool {
+	for _, currType := range types {
+		if currType == a.Type {
+			return true
+		}
+	}
+
+	return false
+}

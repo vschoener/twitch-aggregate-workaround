@@ -58,7 +58,9 @@ func (s Channel) Process(u sModel.User, token core.TokenResponse) {
 		// activity computing
 		s.PrecomputedChannel.UniqueViewers = s.activityStorageRepo.GetUniqueViewers(channel.Name, s.QueryFilter)
 		s.PrecomputedChannel.SecondsWatched = s.activityStorageRepo.GetWatchedTime(channel.Name, s.QueryFilter)
-
+		ccvInfo := s.activityStorageRepo.GetCCVInformation(channel.Name, s.QueryFilter)
+		s.PrecomputedChannel.MaxCCV = ccvInfo.MaxCCV
+		s.PrecomputedChannel.AVGCCV = ccvInfo.AvgCCV
 		err := s.sRepo.Add(s.PrecomputedChannel)
 
 		if err != nil {
